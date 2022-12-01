@@ -4,7 +4,7 @@ new architecture". In fact, most of problems are in the organization.
 
 For a system to be distributed, it has to be decoupled first.
 
-![monolith to micro-frontends](../images/monolith-to-micro-frontends.png)
+![monolith to micro-frontends](../images/architecture-micro-frontend/monolith-to-micro-frontends.png)
 
 # Technical Plan
 
