@@ -415,3 +415,7 @@ The last thing here is that whether a group should be open is determined on the 
 So if we are in the slow 3G environment, there would be a delay before the `NavList.Group` is opened.
 
 But, it okay because we just want it to be sooner.
+
+# Reference
+
+- Code Crimes For Good Component API - https://portal.gitnation.org/contents/back-to-the-future-899
