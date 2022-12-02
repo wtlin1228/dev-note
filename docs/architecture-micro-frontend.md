@@ -2,11 +2,64 @@ Micro Frontend Architecture is trying to solve an organizational issue, scaling,
 It's not just technical. You can not just go to your decision makers and say "Ok, we're gonna use this
 new architecture". In fact, most of problems are in the organization.
 
+# Main benefit of micro-frontend
+
+1. Business scalability
+2. ?
+
+# Micro-frontend cons
+
+1. Performance can be affected:
+
+   - App: duplicated code, work, requests, etc
+   - Teams: duplicated work, e.g. CI/CD
+
+2. Consistency
+
+   - UI state, e.g. locale
+   - Design, e.g. different versions of a design system
+
+3. Reliability
+
+   - Testing that two things deployed independently and composed at runtime work together is complex
+
+   ![reliability](../images/architecture-micro-frontend/reliability.png)
+
+## Trad-off
+
+Performance + Consistency vs Reliability
+
+# Design principles for building composable apps
+
+1. Loosely coupled
+
+   They should have strong boundaries, good interfaces, well-defined interfaces. The smaller Apps(micro-frontends) should have no dependence and dependencies should be ideally build time. That's gonna give you loose-coupled micro-frontends.
+
+2. Executed independently
+
+   Because if you're actually able to execute your micro-frontends independently without a lot of mocking and ceremony around it. It means it's actually loosely couple because otherwise you have to do a lot of work.
+
+3. Autonomously developed
+
+   You don't need to coordinate with other teams. You also need to reduce the coordinated load of executing all that big thing. You only execute a small subset in a smaller context. So you can develop autonomously.
+
+4. Narrowed to a business domain
+
+   Because we use our code to solve business problems. So you need to think business domain.
+
+# How to plan the migration?
+
+Monolith
+-> packages
+-> build independently
+-> execute independently
+-> runtime composition (or build time composition?)
+
 For a system to be distributed, it has to be decoupled first.
 
 ![monolith to micro-frontends](../images/architecture-micro-frontend/monolith-to-micro-frontends.png)
 
-# Technical Plan
+## Technical Plan
 
 1.  Choosing a Composition Model
     - ex: client side composition with Webpack Module Federation
@@ -58,7 +111,7 @@ For a system to be distributed, it has to be decoupled first.
 
       ![shrinking the monolith](../images/architecture-micro-frontend/shrinking-the-monolith.png)
 
-# Organizational Plan
+## Organizational Plan
 
 1. Vision and Strategy
 
@@ -82,3 +135,5 @@ For a system to be distributed, it has to be decoupled first.
 # Reference:
 
 - Monolith to Micro-Frontends - https://portal.gitnation.org/contents/monolith-to-micro-frontends
+- Adopting Micro-Frontends Without Micro-Frontends - https://portal.gitnation.org/contents/adopting-micro-frontends-without-micro-frontends
+- LeanJS - https://leanjs.com/
