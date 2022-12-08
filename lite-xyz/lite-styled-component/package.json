@@ -1,0 +1,21 @@
+{
+  "name": "lite-styled-component",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel index.html"
+  },
+  "keywords": [],
+  "author": "Wei-Tang Lin <wtlin1228@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "parcel": "2.8.0",
+    "process": "0.11.10",
+    "typescript": "4.9.4"
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
