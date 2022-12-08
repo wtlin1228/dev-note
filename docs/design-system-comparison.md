@@ -9,6 +9,10 @@
 | Writing mode | ✅                               | ✅                   | ❌                 | ✅                         | ❌               | ❌                       | ✅                     | ✅                 | ❌                     |
 | Date picker  | ✅                               | ❌                   | ✅                 | ✅ (MUI X)                 | ❌               | ✅                       | ❌                     | ✅                 | ✅                     |
 
+# Resource
+
+- https://jxnblk.com/blog/design-graph/
+
 <!-- prettier-ignore-start -->
 [react-spectrum]: https://github.com/adobe/react-spectrum
 [fluentui]: https://github.com/microsoft/fluentui
