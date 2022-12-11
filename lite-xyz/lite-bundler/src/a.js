@@ -1,4 +1,4 @@
-import b from "./b"
+import b from "./b.js"
 
 export default () => {
   console.log(b)

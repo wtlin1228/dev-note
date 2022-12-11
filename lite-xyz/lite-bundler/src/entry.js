@@ -1,5 +1,5 @@
-import a from "./a"
-import { username as myGitHubUsername } from "./c"
+import a from "./a.js"
+import { username as myGitHubUsername } from "./c.js"
 
 console.log(a())
 console.log(`find me ------> ${myGitHubUsername}`)

@@ -1,4 +1,4 @@
-import { name } from "./c"
+import { name } from "./c.js"
 
 const greet = `Hello, ${name}`
 
