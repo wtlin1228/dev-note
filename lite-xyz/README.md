@@ -1,4 +1,5 @@
 - [x] lite-bundler
+- [ ] lite-nextjs
 - [x] lite-react
 - [x] lite-react-ssr
 - [x] lite-styled-component
