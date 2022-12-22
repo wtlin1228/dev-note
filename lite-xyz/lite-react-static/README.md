@@ -1,0 +1,2 @@
+- use `ReactDOMServer.renderToString` in build time
+- use `ReactDOMClient.hydrateRoot` in client side
