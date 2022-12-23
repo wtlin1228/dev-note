@@ -1,19 +1,6 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const path = require("path")
-
-const moduleFileExtensions = [
-  "web.mjs",
-  "mjs",
-  "web.js",
-  "js",
-  "web.ts",
-  "ts",
-  "web.tsx",
-  "tsx",
-  "json",
-  "web.jsx",
-  "jsx",
-]
+const moduleFileExtensions = require("./webpack/module-file-extensions")
 
 const staticPages = ["about", "contact", "home"]
 const staticPagesEntries = staticPages.reduce((acc, page) => {
@@ -28,7 +15,7 @@ const staticPagesEntries = staticPages.reduce((acc, page) => {
 const staticPagesHtmlWebpackPlugins = staticPages.map(
   (page) =>
     new HtmlWebpackPlugin({
-      filename: `client/html/${page}.html`,
+      filename: `html/${page}.html`,
       chunks: [page],
       template: path.resolve(__dirname, "client/template.html"),
     })
@@ -42,8 +29,8 @@ module.exports = {
   },
   output: {
     clean: true, // Clean the output directory before emit.
-    filename: "client/js/[name].bundle.js",
-    path: path.resolve(__dirname, "dist"),
+    filename: "js/[name].bundle.js",
+    path: path.resolve(__dirname, "dist/client"),
   },
   optimization: {
     minimize: false,
