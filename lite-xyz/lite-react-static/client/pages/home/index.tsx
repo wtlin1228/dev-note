@@ -1,9 +1,6 @@
 import React from "react"
 import { hydrateRoot } from "react-dom/client"
-
-const Home = () => {
-  return <div>Home</div>
-}
+import Home from "./page"
 
 const root = document.getElementById("root")
 if (root) {
