@@ -1,18 +1,7 @@
 # Steps
 
-1. install `devDependencies`
-
-   ```
-   npm i -D @types/react @types/react-dom @types/react-router @types/react-router-dom esm html-webpack-plugin http-server parcel-codegen-loader ts-loader ts-node typescript webpack webpack-cli webpack-dev-server
-   ```
-
-2. install `dependencies`
-
-   ```
-   npm i react react-dom react-router react-router-dom
-   ```
-
-3.
+1. Bundle `src/index.tsx` with webpack.
+2. Generate static pages with custom script (src/ssg.js).
 
 # Reference
 
