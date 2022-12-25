@@ -1,0 +1,7 @@
+- What the Heck Do "Declarative" and "Reactive" Actually Mean?
+  - [Andre Kovac](https://twitter.com/andrekovac) @ [React Day Berlin 2022](https://reactday.berlin/) - [Link](https://portal.gitnation.org/contents/what-the-heck-do-declarative-and-reactive-actually-mean)
+  - Level: beginner
+  - Pickups:
+    - imperative way: write all the code to achieve the state
+    - declarative way: only describe the state you want
+    - React itself is not reactive
