@@ -1,0 +1,9 @@
+query hqNameQuery {
+  restaurant {
+    hqInfo {
+      hqDetail {
+        hqName
+      }
+    }
+  }
+}
