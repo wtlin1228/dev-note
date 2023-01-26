@@ -435,3 +435,16 @@ Some sophisticated attacks can lead to the authorization code being hijacked. Th
       ──┴──                     ──┴──                      ──┴──                  ──┴──                      ──┴──
 
 ```
+
+# OAuth tokens
+
+OAuth tokens are the central defining component of an OAuth system.
+
+- OAuth tokens can be in any format, as long as it’s understood by the authorization server and protected resources.
+- OAuth clients never have to understand the format of a token (and shouldn’t ever try to do so, anyway).
+- JWT defines a way to store structured information in a token.
+- JOSE provides methods to cryptographically protect the content of a token.
+- Introspection allows a protected resource to query the state of a token at runtime.
+- Revocation allows a client to signal the authorization server to discard unwanted tokens after they have been issued, completing the token lifecycle.
+
+# Dynamic client registration
