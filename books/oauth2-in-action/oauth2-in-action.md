@@ -448,3 +448,10 @@ OAuth tokens are the central defining component of an OAuth system.
 - Revocation allows a client to signal the authorization server to discard unwanted tokens after they have been issued, completing the token lifecycle.
 
 # Dynamic client registration
+
+Dynamic client registration is a powerful extension to the OAuth protocol ecosystem.
+
+- Clients can dynamically introduce themselves to authorization servers, but they still need a resource owner’s authorization to access protected resources.
+- Client IDs and client secrets are best issued by the authorization server that will accept them.
+- Client metadata describes many attributes about the client and it can be included in a signed software statement.
+- The dynamic client registration management protocol provides a full set of lifecycle management operations for dynamically registered clients over a RESTful API.
