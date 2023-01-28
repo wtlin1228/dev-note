@@ -1,3 +1,5 @@
+OAuth 2.0 is not an authentication protocol. But we can build the authentication protocol based on OAuth 2.0.
+
 # Authorization code grant flow
 
 ```
@@ -455,3 +457,23 @@ Dynamic client registration is a powerful extension to the OAuth protocol ecosys
 - Client IDs and client secrets are best issued by the authorization server that will accept them.
 - Client metadata describes many attributes about the client and it can be included in a signed software statement.
 - The dynamic client registration management protocol provides a full set of lifecycle management operations for dynamically registered clients over a RESTful API.
+
+# User authentication with OAuth 2.0
+
+Many people erroneously believe that OAuth 2.0 is an authentication protocol, but now you know the truth of the matter.
+
+- OAuth 2.0 is not an authentication protocol, but it can be used to build an authentication protocol.
+- Many existing authentication protocols that have been built using OAuth 2.0 are in use on the web today, most of them tied to specific providers.
+- Designers of authentication protocols make many common mistakes on top of OAuth 2.0. These mistakes can be avoided with careful design of the authentication protocol.
+- With a few key additions, the OAuth 2.0 authorization server and protected resource can act as an identity provider, and the OAuth 2.0 client can act as a relying party.
+- OpenID Connect provides a carefully designed open standard authentication protocol built on top of OAuth 2.0.
+
+## OpenID Connect
+
+https://openid.net/connect/
+
+OpenID Connect 1.0 is a simple identity layer on top of the OAuth 2.0 protocol.
+
+![Authenticate based on Authorization](./authenticate-based-on-authorization.png)
+
+![Components of an OAuth-based authentication and identity protocol](./components-of-an-o-auth-based-authentication-and-identity-protocol.png)
