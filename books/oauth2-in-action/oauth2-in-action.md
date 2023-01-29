@@ -477,3 +477,98 @@ OpenID Connect 1.0 is a simple identity layer on top of the OAuth 2.0 protocol.
 ![Authenticate based on Authorization](./authenticate-based-on-authorization.png)
 
 ![Components of an OAuth-based authentication and identity protocol](./components-of-an-o-auth-based-authentication-and-identity-protocol.png)
+
+# Protocols and profiles using OAuth 2.0
+
+OAuth is a great foundation for building new protocols.
+
+- UMA allows resource servers and authorization servers to be introduced together in a way that can be highly dynamic and user-driven across security domains.
+- UMA adds new parties to the OAuth dance, most notably the requesting party, allowing true user-to-user sharing and delegation.
+- HEART applies several open standards based on OAuth to the healthcare domain, profiling them to increase security and interoperability.
+- HEART defines both mechanical and semantic profiles, allowing the lessons learned to reach beyond the healthcare domain and find wide applicability.
+- iGov is in the formative stages of development, but it will define a set of profiles for government identity systems that could have far-reaching consequences.
+
+## User Managed Access (UMA)
+
+v1 documentation: https://docs.kantarainitiative.org/uma/rec-uma-core-v1_0.html
+
+Throughout the entire process, neither the resource owner’s credentials nor the requesting party’s credentials were revealed to the resource server or the client. Additionally, sensitive personal information about either party has not been disclosed between them. The requesting party need only prove whatever minimum amount is required to fulfill the policies set by the resource owner.
+
+```
+
+ Resource Owner                    Protected Resource                   Authorization Server                        Client                          Requesting Party
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │                                     │                                    │
+       │    Pointing the resource to the    │                                    │                                     │                                    │
+       │        authorization server        │                                    │                                     │                                    │
+       ├── ── ── ── ── ── ── ── ── ── ── ──►│                                    │                                     │                                    │
+       │                                    │  Discovery and Client Registration │                                     │                                    │
+       │                                    │◄──────────────────────────────────►│                                     │                                    │
+       │                                    │                                    │                                     │                                    │
+       │             Using OAuth, get the protection access token (PAT)          │                                     │                                    │
+       │                        with scope uma_protection                        │                                     │                                    │
+       │◄──────────────────────────────────►│◄──────────────────────────────────►│                                     │                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │       Register a resource set      │                                     │                                    │
+       │                                    │◄──────────────────────────────────►│                                     │                                    │
+       │                                    │                                    │                                     │                                    │
+       │  Resource owner selects resources  │                                    │                                     │                                    │
+       │         and sets policies          │                                    │                                     │                                    │
+       ├── ── ── ── ── ── ── ── ── ── ── ── ├── ── ── ── ── ── ── ── ── ── ── ──►│                                     │                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │                                     │   Initiate access of the resource  │
+       │                                    │                                    │                                     │◄── ── ── ── ── ── ── ── ── ── ── ──┤
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │    Client attempts to access the    │                                    │
+       │                                    │                                    │   resource without an access token  │                                    │
+       │                                    │◄───────────────────────────────────┼─────────────────────────────────────┤                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │     Request a permission ticket    │                                     │                                    │
+       │                                    │◄──────────────────────────────────►│                                     │                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │    Return error with ticket and    │                                     │                                    │
+       │                                    │        as_uri in the header        │                                     │                                    │
+       │                                    ├────────────────────────────────────┼────────────────────────────────────►│                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │   Discovery & Client Registration   │                                    │
+       │                                    │                                    │◄───────────────────────────────────►│                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │  Attempt to trade ticket for token  │                                    │
+       │                                    │                                    │◄────────────────────────────────────┤                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │    Ticket needs more information    │                                    │
+       │                                    │                                    ├────────────────────────────────────►│                                    │
+       │                                    │                                    │                                     │  Send to the authorization server  │
+       │                                    │                                    │                                     │          to present claims         │
+       │                                    │                                    │                                     ├── ── ── ── ── ── ── ── ── ── ── ───┤
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │                Present claims to the authorization server                │
+       │                                    │                                    │                     (using OIDC or another process)                      │
+       │                                    │                                    │◄── ── ── ── ── ── ── ── ── ── ── ── ├── ── ── ── ── ── ── ── ── ── ── ───┤
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │                                     │               Continue             │
+       │                                    │                                    │                                     │◄── ── ── ── ── ── ── ── ── ── ── ──┤
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │  Attempt to trade ticket for token  │                                    │
+       │                                    │                                    │◄────────────────────────────────────┤                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │       Issue access token (RPT)      │                                    │
+       │                                    │                                    ├────────────────────────────────────►│                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │    Client attempts to access the resource with the access token (RPT)    │                                    │
+       │                                    │◄───────────────────────────────────┬─────────────────────────────────────┤                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │     Introspect the access token    │                                     │                                    │
+       │                                    │◄──────────────────────────────────►│                                     │                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │         Return the resource        │                                     │                                    │
+       │                                    ├────────────────────────────────────┼────────────────────────────────────►│                                    │
+       │                                    │                                    │                                     │                                    │
+       │                                    │                                    │                                     │                                    │
+     ──┴──                                ──┴──                                ──┴──                                 ──┴──                                ──┴──
+
+```
+
+[WG - User Managed Access v2](https://kantara.atlassian.net/wiki/spaces/uma/overview)
+
+## Health Relationship Trust (HEART)
