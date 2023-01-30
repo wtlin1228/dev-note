@@ -572,3 +572,13 @@ Throughout the entire process, neither the resource owner’s credentials nor th
 [WG - User Managed Access v2](https://kantara.atlassian.net/wiki/spaces/uma/overview)
 
 ## Health Relationship Trust (HEART)
+
+The HEART working group is building on top of **OAuth**, **OpenID Connect**, and **UMA**. By locking down optional features and codifying best practices, HEART seeks to promote both higher security and greater interoperability between independent implementations.
+
+[WG - HEART](https://openid.net/wg/heart/)
+
+[Fast Healthcare Interoperable Resources](http://hl7.org/fhir/) (FHIR) specifications. FHIR defines a RESTful API for sharing healthcare data, and HEART’s semantic profiles are designed to secure it in a predictable manner.
+
+## International Government Assurance (iGov)
+
+[WG - iGov](https://openid.net/wg/igov/)
