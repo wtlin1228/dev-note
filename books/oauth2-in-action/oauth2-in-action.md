@@ -1,3 +1,5 @@
+[WG - Web Authorization Protocol (oauth)](https://datatracker.ietf.org/group/oauth/documents/)
+
 OAuth 2.0 is not an authentication protocol. But we can build the authentication protocol based on OAuth 2.0.
 
 # Authorization code grant flow
@@ -582,3 +584,29 @@ The HEART working group is building on top of **OAuth**, **OpenID Connect**, and
 ## International Government Assurance (iGov)
 
 [WG - iGov](https://openid.net/wg/igov/)
+
+# Beyond bearer tokens
+
+In many cases, we want to be able to move beyond this and have the client be able to prove that it’s in possession of something secret that is not sent across the wire. This ensures that even if a request is captured in transit, an attacker can’t reuse the token contained within because the attacker won’t have access to the secret as well.
+
+OAuth bearer tokens provide simple and robust functionality, but it’s valuable to move beyond them for some use cases.
+
+- PoP tokens are associated with a key known to the client.
+- The client signs an HTTP request with the PoP key and sends it to the protected resource.
+- The protected resource verifies the signature along with the access token itself.
+- TLS token binding can bridge the layers of the network stack to allow for higher assurance in the connection.
+
+## Proof of Possession (PoP) tokens
+
+1. Authorization server will generate a RSA key pair and send it to client alongside access token.
+2. Authorization server only store the public key.
+3. Client signs the request to protected resource with private key.
+4. Protected resource introspect the access token and get the public key for this AC.
+5. Protected verify this request with the public key.
+6. Return the resource or error.
+
+The new one is [OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://datatracker.ietf.org/doc/draft-ietf-oauth-dpop/)
+
+## TLS token binding
+
+https://en.wikipedia.org/wiki/Token_Binding
