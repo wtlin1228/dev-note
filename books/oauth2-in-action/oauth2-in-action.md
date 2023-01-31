@@ -183,7 +183,7 @@ CSRF explained on [OWASP](https://owasp.org/www-community/attacks/csrf).
 
 After the flow above, victim connects to the attacker's authorization context.
 
-This kind of attack can be prevented by including an unguessable state in the URI.
+This kind of attack can be prevented by including an unguessable state in the URI. The generated state value can then be stored either in the cookie or, more appropriately, in the session and used subsequently to perform the check.
 
 ### Theft of client credentials
 
