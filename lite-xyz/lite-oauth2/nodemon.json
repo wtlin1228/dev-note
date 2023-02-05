@@ -1,0 +1,6 @@
+{
+  "ignore": ["localDB"],
+  "execMap": {
+    "ts": "ts-node"
+  }
+}
