@@ -1,5 +1,5 @@
 - [x] lite-bundler
-- [ ] lite-oauth2
+- [x] lite-oauth2
 - [x] lite-react
 - [x] lite-react-ssr
 - [x] lite-react-static
