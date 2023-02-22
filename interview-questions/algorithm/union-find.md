@@ -1,8 +1,10 @@
+# Union Find
+
 Union find is useful in the [connected components](<https://en.wikipedia.org/wiki/Component_(graph_theory)>) problems.
 
 By maintaining the parent of each vertex in the graph, we can union(merge) each vertex by finding their parent first.
 
-pseudo code:
+## pseudo code
 
 ```
 for each edge of edges:
@@ -10,7 +12,7 @@ for each edge of edges:
   2. union the two parents
 ```
 
-implementation:
+## implementation
 
 ```js
 class UnionFind {
@@ -66,3 +68,8 @@ class UnionFind {
   }
 }
 ```
+
+## Problems
+
+- [323. Number of Connected Components in an Undirected Graph](https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/description/)
+- [200. Number of Islands](https://leetcode.com/problems/number-of-islands/description/)
