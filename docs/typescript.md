@@ -16,6 +16,8 @@ Useful Types Examples:
 - Function Overload
 - Modify Prefix / Postfix of String
 - Key Mapping and Key Re-Manning
+- Tuple to Optional Object
+- Array with at least one Element
 
 ## The Builder Pattern
 
@@ -317,6 +319,33 @@ ref: https://www.typescriptlang.org/docs/handbook/2/mapped-types.html
 type MappedTypeWithNewProperties<Type> = {
   [Properties in keyof Type as NewKeyType]: Type[Properties]
 }
+```
+
+## Tuple to Optional Object
+
+`["a", "b", "c"]` to `{ a?: string, b?: string, c?: string }`
+
+```ts
+type TupleToObject<TTuple extends string[]> = Partial<
+  Record<TTuple[number], string>
+>
+// OR
+type TupleToObject<TTuple extends string[]> = {
+  [Key in TTuple[number]]?: string
+}
+```
+
+## Array with at least one Element
+
+```ts
+type AtLeastOneString = [string, ...string[]]
+
+const emptyArray: AtLeastOneString = []
+/**
+ * ⛔️
+ * Type '[]' is not assignable to type 'AtLeastOneString'.
+ * Source has 0 element(s) but target requires 1.
+ */
 ```
 
 # TS Reset
