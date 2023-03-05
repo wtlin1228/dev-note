@@ -10,6 +10,9 @@ Useful Types Examples:
 - Omit and Pick
 - Readonly
 - Object to Union Type
+- Object to Union of Tuples
+- Object to Union of All Possible Combinations of Attributes
+- Object to Union of Template Literals
 - Get All Possible Values
 - Wrap External Library
 - Validate Value with Opaque and Type Guard
@@ -26,12 +29,16 @@ Useful Types Examples:
 - Warning for Required Type
 - Get Params Keys (useful for i18n)
 - Translation (useful for i18n)
+- Get Dynamic Path Params
 - Extract from Discriminated Union
 - Discriminated Union to Discriminator
+- Discriminated Union to Object
+- Discriminated Union to Union
 - Unions in Template Literals
 - Non-undefined and Non-null Constraint
 - Two Union Types are Sub-union of Each Other
 - Never in Key Re-mapping
+- Deep Partial
 
 Workaround:
 
@@ -205,6 +212,62 @@ export type IndividualProgram = ProgramMap[
   | "SELF_DIRECTED"
   | "PLANNED_ONE_ON_ONE"
   | "PLANNED_SELF_DIRECTED"]
+```
+
+## Object to Union of Tuples
+
+```ts
+interface Values {
+  email: string
+  firstName: string
+  lastName: string
+}
+
+// type ValuesAsUnionOfTuples =
+//   | ["firstName", string]
+//   | ["lastName", string]
+//   | ["email", string]
+type ValuesAsUnionOfTuples = {
+  [K in keyof Values]: [K, Values[K]]
+}[keyof Values]
+```
+
+## Object to Union of All Possible Combinations of Attributes
+
+```ts
+interface Attributes {
+  id: string
+  email: string
+  username: string
+}
+
+type MutuallyExclusive<T> = {
+  [K in keyof T]: Record<K, T[K]>
+}[keyof T]
+
+// type ExclusiveAttributes =
+//   | Record<"id", string>
+//   | Record<"email", string>
+//   | Record<"username", string>
+type ExclusiveAttributes = MutuallyExclusive<Attributes>
+```
+
+## Object to Union of Template Literals
+
+```ts
+interface FruitMap {
+  apple: "red"
+  banana: "yellow"
+  orange: "orange"
+}
+
+// type TransformedFruit =
+//   | "orange:orange"
+//   | "apple:red"
+//   | "banana:yellow"
+type TransformedFruit = {
+  [K in keyof FruitMap]: `${K}:${FruitMap[K]}`
+}[keyof FruitMap]
 ```
 
 ## Get All Possible Values
@@ -641,6 +704,38 @@ const title = translate(translations, "title", {
 })
 ```
 
+## Get Dynamic Path Params
+
+```ts
+type RemoveFirstSlash<T> = T extends `/${infer U}` ? U : T
+
+type SplitPath<T> = T extends ""
+  ? []
+  : RemoveFirstSlash<T> extends `${infer First}/${infer Last}`
+  ? [First, ...SplitPath<Last>]
+  : [T]
+
+type GetParams<T> = T extends string[]
+  ? {
+      [K in T[number] as K extends `:${infer U}` ? U : never]: string
+    }
+  : {}
+
+type ExtractPathParams<T> = GetParams<SplitPath<T>>
+
+// type UserPathParams = {
+//   id: string
+// }
+type UserPathParams = ExtractPathParams<"/users/:id">
+
+// type UserOrganizationPathParams = {
+//   id: string
+//   organizationId: string
+// }
+type UserOrganizationPathParams =
+  ExtractPathParams<"/users/:id/organizations/:organizationId">
+```
+
 ## Extract from Discriminated Union
 
 ```ts
@@ -695,6 +790,61 @@ export type Event =
 
 // type EventType = "click" | "focus" | "keydown"
 type EventType = Event["type"]
+```
+
+## Discriminated Union to Object
+
+```ts
+type Route =
+  | {
+      route: "/"
+      search: {
+        page: string
+        perPage: string
+      }
+    }
+  | { route: "/about"; search: {} }
+  | { route: "/admin"; search: {} }
+  | { route: "/admin/users"; search: {} }
+
+// type RoutesObject = {
+//   "/": {
+//     page: string
+//     perPage: string
+//   }
+//   "/about": never
+//   "/admin": never
+//   "/admin/users": never
+// }
+type RoutesObject = {
+  [R in Route as R["route"]]: R extends { search: infer S } ? S : never
+}
+```
+
+## Discriminated Union to Union
+
+```ts
+type Fruit =
+  | {
+      name: "apple"
+      color: "red"
+    }
+  | {
+      name: "banana"
+      color: "yellow"
+    }
+  | {
+      name: "orange"
+      color: "orange"
+    }
+
+// type TransformedFruit =
+//   | "apple:red"
+//   | "banana:yellow"
+//   | "orange:orange"
+type TransformedFruit = {
+  [K in Fruit as K["name"]]: `${K["name"]}:${K["color"]}`
+}[Fruit["name"]]
 ```
 
 ## Unions in Template Literals
@@ -789,6 +939,47 @@ type OnlyIdKeys<T> = {
 //   groupId: string
 // }
 type Result = OnlyIdKeys<Example>
+```
+
+## Deep Partial
+
+```ts
+type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends Array<infer U>
+    ? Array<DeepPartial<U>>
+    : DeepPartial<T[K]>
+}
+
+type MyType = {
+  a: string
+  b: number
+  c: {
+    d: string
+    e: {
+      f: string
+      g: {
+        h: string
+        i: string
+      }[]
+    }
+  }
+}
+
+// type Result = {
+//   a?: string
+//   b?: number
+//   c?: {
+//     d?: string
+//     e?: {
+//       f?: string
+//       g?: {
+//         h?: string
+//         i?: string
+//       }[]
+//     }
+//   }
+// }
+type Result = DeepPartial<MyType>
 ```
 
 ## Infer Type with F.Narrow
