@@ -26,6 +26,12 @@ Useful Types Examples:
 - Warning for Required Type
 - Get Params Keys (useful for i18n)
 - Translation (useful for i18n)
+- Extract from Discriminated Union
+- Discriminated Union to Discriminator
+- Unions in Template Literals
+- Non-undefined and Non-null Constraint
+- Two Union Types are Sub-union of Each Other
+- Never in Key Re-mapping
 
 Workaround:
 
@@ -574,6 +580,21 @@ type GetParamKeysAsUnion<TTranslation extends string> =
 type ParamKeys = GetParamKeysAsUnion<"Hello, {firstName} {lastName}.">
 ```
 
+Split path with the same logic:
+
+```ts
+type Path = "Users/John/Documents/notes.txt"
+
+type SplitPath<S extends string> = S extends ""
+  ? []
+  : S extends `${infer T}/${infer U}`
+  ? [T, ...SplitPath<U>]
+  : [S]
+
+// type PathAfterSplit = ["Users", "John", "Documents", "notes.txt"]
+type PathAfterSplit = SplitPath<Path>
+```
+
 ## Translation (useful for i18n)
 
 ```ts
@@ -618,6 +639,156 @@ const title = translate(translations, "title", {
   name: "leo",
   something: "have a nice day",
 })
+```
+
+## Extract from Discriminated Union
+
+```ts
+export type Event =
+  | {
+      type: "click"
+      event: MouseEvent
+    }
+  | {
+      type: "focus"
+      event: FocusEvent
+    }
+  | {
+      type: "keydown"
+      event: KeyboardEvent
+    }
+
+// type ClickEvent = {
+//   type: "click";
+//   event: MouseEvent;
+// }
+type ClickEvent = Extract<Event, { type: "click" }>
+
+// type NonKeyDownEvents =
+//   | {
+//       type: "click"
+//       event: MouseEvent
+//     }
+//   | {
+//       type: "focus"
+//       event: FocusEvent
+//     }
+type NonKeyDownEvents = Exclude<Event, { type: "keydown" }>
+```
+
+## Discriminated Union to Discriminator
+
+```ts
+export type Event =
+  | {
+      type: "click"
+      event: MouseEvent
+    }
+  | {
+      type: "focus"
+      event: FocusEvent
+    }
+  | {
+      type: "keydown"
+      event: KeyboardEvent
+    }
+
+// type EventType = "click" | "focus" | "keydown"
+type EventType = Event["type"]
+```
+
+## Unions in Template Literals
+
+```ts
+type BreadType = "rye" | "brown" | "white"
+
+type Filling = "cheese" | "ham" | "salami"
+
+// type Sandwich =
+//   | "rye sandwich with cheese"
+//   | "rye sandwich with ham"
+//   | "rye sandwich with salami"
+//   | "brown sandwich with cheese"
+//   | "brown sandwich with ham"
+//   | "brown sandwich with salami"
+//   | "white sandwich with cheese"
+//   | "white sandwich with ham"
+//   | "white sandwich with salami"
+type Sandwich = `${BreadType} sandwich with ${Filling}`
+```
+
+## Non-undefined and Non-null Constraint
+
+Only `undefined` and `null` don't extend `{}`.
+
+ref: https://stackoverflow.com/questions/61648189/typescript-generic-type-parameters-t-vs-t-extends
+
+```ts
+export type Maybe<T extends {}> = T | null | undefined
+
+type tests = [
+  // @ts-expect-error
+  Maybe<null>,
+  // @ts-expect-error
+  Maybe<undefined>,
+
+  Maybe<string>,
+  Maybe<false>,
+  Maybe<0>,
+  Maybe<"">,
+  Maybe<{ a: 1 }>,
+  Maybe<[]>
+]
+```
+
+## Two Union Types are Sub-union of Each Other
+
+Determine whether two union types are sub-union of each other.
+
+```ts
+type Fruit = "apple" | "banana" | "orange"
+
+// type A = never
+type A = Fruit extends "apple" | "banana"
+  ? "Fruit extends (apple | banana)"
+  : never
+
+// type B = "(apple | banana) extends Fruit"
+type B = "apple" | "banana" extends Fruit
+  ? "(apple | banana) extends Fruit"
+  : never
+
+// type C = "(apple | banana) is the subset of Fruit"
+type C = Fruit extends infer T
+  ? T extends "apple" | "banana"
+    ? "(apple | banana) is the subset of Fruit"
+    : never
+  : never
+```
+
+## Never in Key Re-mapping
+
+```ts
+interface Example {
+  name: string
+  age: number
+  id: string
+  organizationId: string
+  groupId: string
+}
+
+type KeyWithId = `${string}${"id" | "Id"}${string}`
+
+type OnlyIdKeys<T> = {
+  [K in keyof T as K extends KeyWithId ? K : never]: T[K]
+}
+
+// type Result = {
+//   id: string
+//   organizationId: string
+//   groupId: string
+// }
+type Result = OnlyIdKeys<Example>
 ```
 
 ## Infer Type with F.Narrow
