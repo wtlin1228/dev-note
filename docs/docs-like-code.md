@@ -83,3 +83,4 @@ Spotify has opensourced their framework for managing technical documentations - 
 
 - https://cchesser.github.io/docs-as-code/
 - [How we are solving internal technical documentation at Spotify -- Gary Niemen](https://www.youtube.com/watch?v=uFGCaZmA6d4)
+- [How Spotify Adopted and Outsourced Its Platform Mindset](https://thenewstack.io/how-spotlify-adopted-platform-engineering-culture/)
