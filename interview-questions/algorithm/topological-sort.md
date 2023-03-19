@@ -147,4 +147,261 @@ $O(V + E)$, where
 
 ## Problems
 
-- [207. Course Schedule](https://leetcode.com/problems/course-schedule/description/)
+- [207. Course Schedule](https://leetcode.com/problems/course-schedule/)
+- [210. Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
+- All Course Schedule Orders - Same as above, but return all order instead of any
+- [269. Alien Dictionary](https://leetcode.com/problems/alien-dictionary/)
+
+### All Course Schedule Orders
+
+Input: Tasks=6, Prerequisites=[2, 5], [0, 5], [0, 4], [1, 4], [3, 2], [1, 3]
+Output:
+
+1. [0, 1, 4, 3, 2, 5]
+2. [0, 1, 3, 4, 2, 5]
+3. [0, 1, 3, 2, 4, 5]
+4. [0, 1, 3, 2, 5, 4]
+5. [1, 0, 3, 4, 2, 5]
+6. [1, 0, 3, 2, 4, 5]
+7. [1, 0, 3, 2, 5, 4]
+8. [1, 0, 4, 3, 2, 5]
+9. [1, 3, 0, 2, 4, 5]
+10. [1, 3, 0, 2, 5, 4]
+11. [1, 3, 0, 4, 2, 5]
+12. [1, 3, 2, 0, 5, 4]
+13. [1, 3, 2, 0, 4, 5]
+
+Time Complexity: $O(V! * E)$
+Space Complexity: $O(V + E)$
+
+```js
+/**
+ * @param {number} numCourses
+ * @param {number[][]} prerequisites
+ * @return {number[]}
+ */
+var findAllOrder = function (numCourses, prerequisites) {
+  if (numCourses <= 0) {
+    return []
+  }
+
+  const inDegree = Array(numCourses).fill(0)
+  const graph = Array(numCourses)
+    .fill()
+    .map(() => [])
+
+  prerequisites.forEach(([parent, child]) => {
+    graph[parent].push(child)
+    inDegree[child] += 1
+  })
+
+  const sources = inDegree.reduce((acc, curr, idx) => {
+    if (curr === 0) {
+      acc.push(idx)
+    }
+    return acc
+  }, [])
+
+  const allSorts = []
+  findAllTopologicalSorts(allSorts, graph, inDegree, sources)
+  return allSorts
+}
+
+const findAllTopologicalSorts = (
+  res,
+  graph,
+  inDegree,
+  sources,
+  sortedOrder = []
+) => {
+  if (sources.length > 0) {
+    sources.forEach((vertex) => {
+      sortedOrder.push(vertex)
+
+      const sourcesForNextCall = sources.reduce((acc, curr) => {
+        if (curr !== vertex) {
+          acc.push(curr)
+        }
+        return acc
+      }, [])
+
+      graph[vertex].forEach((child) => {
+        inDegree[child] -= 1
+        if (inDegree[child] === 0) {
+          sourcesForNextCall.push(child)
+        }
+      })
+
+      findAllTopologicalSorts(
+        res,
+        graph,
+        inDegree,
+        sourcesForNextCall,
+        sortedOrder
+      )
+
+      sortedOrder.pop()
+      graph[vertex].forEach((child) => {
+        inDegree[child] += 1
+      })
+    })
+  }
+
+  if (sortedOrder.length === inDegree.length) {
+    res.push([...sortedOrder])
+  }
+}
+
+console.log("Task Orders: ")
+console.log(
+  findAllOrder(3, [
+    [0, 1],
+    [1, 2],
+  ])
+)
+
+console.log("Task Orders: ")
+console.log(
+  findAllOrder(4, [
+    [3, 2],
+    [3, 0],
+    [2, 0],
+    [2, 1],
+  ])
+)
+
+console.log("Task Orders: ")
+console.log(
+  findAllOrder(6, [
+    [2, 5],
+    [0, 5],
+    [0, 4],
+    [1, 4],
+    [3, 2],
+    [1, 3],
+  ])
+)
+```
+
+### Alien Dictionary
+
+There is a new alien language that uses the English alphabet. However, the order among the letters is unknown to you.
+
+You are given a list of strings words from the alien language's dictionary, where the strings in words are sorted lexicographically by the rules of this new language.
+
+Return a string of the unique letters in the new alien language sorted in lexicographically increasing order by the new language's rules. If there is no solution, return "". If there are multiple solutions, return any of them.
+
+Example 1:
+
+Input: words = ["wrt","wrf","er","ett","rftt"]
+Output: "wertf"
+Example 2:
+
+Input: words = ["z","x"]
+Output: "zx"
+Example 3:
+
+Input: words = ["z","x","z"]
+Output: ""
+Explanation: The order is invalid, so return "".
+
+Time Complexity:
+
+- parseWords takes $O(L)$, where
+
+  - L is the overall length of words
+
+- topological sort takes $O(V! * E)$, where
+
+  - `V` is the total number of vertices
+  - `E` is the total number of edges in the graph.
+
+Space Complexity: $O(V + E)$
+
+```ts
+function alienOrder(words: string[]): string {
+  const { inDegree, graph } = parseWords(words)
+
+  let sources = []
+  for (const [key, value] of inDegree) {
+    if (value === 0) {
+      sources.push(key)
+    }
+  }
+
+  let res = ""
+  while (sources.length > 0) {
+    const nextSources: string[] = []
+
+    sources.forEach((char) => {
+      res += char
+      for (const child of graph.get(char)) {
+        inDegree.set(child, inDegree.get(child) - 1)
+        if (inDegree.get(child) === 0) {
+          nextSources.push(child)
+        }
+      }
+    })
+
+    sources = nextSources
+  }
+
+  if (res.length !== inDegree.size) {
+    return ""
+  }
+
+  return res
+}
+
+const parseWords = (
+  words: string[]
+): {
+  inDegree: Map<string, number>
+  graph: Map<string, Set<string>>
+} => {
+  // Time Complexity: O(L), where L is the length of all words
+  const charSet = words.reduce<Set<string>>((acc, curr) => {
+    for (const char of curr) {
+      acc.add(char)
+    }
+    return acc
+  }, new Set())
+
+  const inDegree = new Map<string, number>()
+  const graph = new Map<string, Set<string>>()
+  for (const char of charSet) {
+    inDegree.set(char, 0)
+    graph.set(char, new Set())
+  }
+
+  // Time Complexity: O(L), where L is the length of all words
+  let prevWord = words[0]
+  for (let i = 1; i < words.length; i++) {
+    const currWord = words[i]
+
+    if (currWord.startsWith(prevWord)) {
+      continue
+    }
+
+    let ptr = 0
+    while (prevWord[ptr] === currWord[ptr]) {
+      ptr += 1
+    }
+
+    const parent = prevWord[ptr]
+    const child = currWord[ptr]
+
+    if (!graph.get(parent).has(child)) {
+      inDegree.set(child, inDegree.get(child) + 1)
+      graph.get(parent).add(child)
+    }
+
+    prevWord = currWord
+  }
+
+  return {
+    inDegree,
+    graph,
+  }
+}
+```
