@@ -151,6 +151,8 @@ $O(V + E)$, where
 - [210. Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
 - All Course Schedule Orders - Same as above, but return all order instead of any
 - [269. Alien Dictionary](https://leetcode.com/problems/alien-dictionary/)
+- [444. Sequence Reconstruction](https://leetcode.com/problems/sequence-reconstruction/)
+- [310. Minimum Height Trees](https://leetcode.com/problems/minimum-height-trees/)
 
 ### All Course Schedule Orders
 
@@ -403,5 +405,121 @@ const parseWords = (
     inDegree,
     graph,
   }
+}
+```
+
+### Sequence Reconstruction
+
+time complexity: $O(V + E)$
+
+- each vertex will become a source only once and each edge will be accessed and removed once
+
+space complexity: $O(V + E)$
+
+- V is nums.length. we have nums.length vertexes
+- E is edges, at most V ^ 2
+
+```ts
+function sequenceReconstruction(
+  nums: number[],
+  sequences: number[][]
+): boolean {
+  const n = nums.length
+
+  const inDegree = Array(n + 1).fill(0)
+  const graph = Array(n + 1)
+    .fill(0)
+    .map(() => new Set<number>())
+
+  sequences.forEach((sequence) => {
+    let prev = sequence[0]
+    for (let i = 1; i < sequence.length; i++) {
+      const curr = sequence[i]
+      const childSet = graph[prev]
+      if (!childSet.has(curr)) {
+        childSet.add(curr)
+        inDegree[curr] += 1
+      }
+      prev = curr
+    }
+  })
+
+  let sources: number[] = []
+  for (let i = 1; i <= n; i++) {
+    if (inDegree[i] === 0) {
+      sources.push(i)
+    }
+  }
+
+  let res = []
+  while (sources.length === 1) {
+    const source = sources[0]
+    res.push(source)
+
+    const nextSources = []
+    for (const child of graph[source]) {
+      inDegree[child] -= 1
+      if (inDegree[child] === 0) {
+        nextSources.push(child)
+      }
+    }
+
+    sources = nextSources
+  }
+
+  return res.length === n
+}
+```
+
+### Minimum Height Trees
+
+Let $|V|$ be the number of nodes in the graph, then the number of edges would be $|V| - 1$ as specified in the problem.
+
+time complexity: $O(|V|)$
+
+space complexity: $O(|V|)$
+
+```ts
+function findMinHeightTrees(n: number, edges: number[][]): number[] {
+  if (n <= 2) {
+    return Array(n)
+      .fill(0)
+      .map((_, i) => i)
+  }
+
+  const graph = Array(n)
+    .fill(0)
+    .map(() => new Set<number>())
+  for (const [left, right] of edges) {
+    graph[left].add(right)
+    graph[right].add(left)
+  }
+
+  // find all leaves
+  let leaves = graph.reduce<number[]>((acc, curr, idx) => {
+    if (curr.size === 1) {
+      acc.push(idx)
+    }
+    return acc
+  }, [])
+
+  let remainingNodes = n
+
+  while (remainingNodes > 2) {
+    remainingNodes -= leaves.length
+
+    const nextLeaves = []
+    for (const node of leaves) {
+      for (const neighbor of graph[node]) {
+        graph[neighbor].delete(node)
+        if (graph[neighbor].size === 1) {
+          nextLeaves.push(neighbor)
+        }
+      }
+    }
+    leaves = nextLeaves
+  }
+
+  return leaves
 }
 ```
