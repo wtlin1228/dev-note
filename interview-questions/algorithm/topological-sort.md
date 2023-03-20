@@ -174,7 +174,12 @@ Output:
 13. [1, 3, 2, 0, 4, 5]
 
 Time Complexity: $O(V! * E)$
-Space Complexity: $O(V + E)$
+
+Space Complexity: $O(V! + V^2 + E)$
+
+- $V!$ for all combination
+- $V^2$ for sources in all stacks
+- $E$ for the graph
 
 ```js
 /**
