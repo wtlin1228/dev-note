@@ -52,6 +52,8 @@ Differences between approaches:
 
 If your component manages state, find parts of the render tree that don’t depend on the changed state and memoise them to minimize their re-renders.
 
+ref: https://www.developerway.com/posts/how-to-write-performant-react-code
+
 ```tsx
 export const Page = ({ countries }: { countries: Country[] }) => {
   // Page component manages two states
@@ -99,6 +101,8 @@ Further more, we can separate the Data into even smaller pieces.
 
 `useReducer` is a trick to prevent API to be re-created because dispatch
 is always the same reference.
+
+ref: https://www.developerway.com/posts/how-to-write-performant-react-apps-with-context
 
 ```tsx
 import React from "react"
