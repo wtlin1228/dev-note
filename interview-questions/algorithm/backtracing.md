@@ -90,6 +90,22 @@ Input: root = [3,4,5,1,3,null,1]
 Output: 9
 Explanation: Maximum amount of money the thief can rob = 4 + 5 = 9.
 
+```ts
+// Definition for a binary tree node.
+class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+  constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+    this.val = val === undefined ? 0 : val
+    this.left = left === undefined ? null : left
+    this.right = right === undefined ? null : right
+  }
+}
+```
+
+Approach 1: DFS + Cache
+
 Time Complexity: $O(n)$
 
 - n is the number of nodes in the tree
@@ -100,20 +116,6 @@ Space Complexity: $O(n)$
 - n is the number of nodes in the tree
 
 ```ts
-/**
- * Definition for a binary tree node.
- * class TreeNode {
- *     val: number
- *     left: TreeNode | null
- *     right: TreeNode | null
- *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
- *         this.val = (val===undefined ? 0 : val)
- *         this.left = (left===undefined ? null : left)
- *         this.right = (right===undefined ? null : right)
- *     }
- * }
- */
-
 function rob(root: TreeNode | null): number {
   const cache = new Map<TreeNode, number>()
 
@@ -146,5 +148,38 @@ function rob(root: TreeNode | null): number {
   }
 
   return f(root)
+}
+```
+
+Approach 2: DFS + backtracking
+
+Time Complexity: $O(n)$
+
+- n is the number of nodes in the tree
+- we only visit each node once at most
+
+Space Complexity: $O(h)$
+
+- h is the height of the tree
+
+```ts
+function rob(root: TreeNode | null): number {
+  const dfs = (house: TreeNode): [number, number] => {
+    if (!house) {
+      return [0, 0]
+    }
+
+    const [notRobLeft, robLeft] = dfs(house.left)
+    const [notRobRight, robRight] = dfs(house.right)
+
+    const notRobThis =
+      Math.max(notRobLeft, robLeft) + Math.max(notRobRight, robRight)
+    const robThis = house.val + notRobLeft + notRobRight
+
+    return [notRobThis, robThis]
+  }
+
+  const [notRobRoot, robRoot] = dfs(root)
+  return Math.max(notRobRoot, robRoot)
 }
 ```
