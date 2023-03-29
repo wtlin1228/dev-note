@@ -194,3 +194,107 @@ export const FormDataProvider: React.FC<React.PropsWithChildren<{}>> = ({
   )
 }
 ```
+
+## Optimize context with Higher-Order Component
+
+For example, we have a form context that provides both the data and apis.
+Every time the context value change, every consumer of `useFormContext`
+get rerendered.
+
+ref: https://www.developerway.com/posts/higher-order-components-in-react-hooks-era
+
+```ts
+type Context = {
+  id: string
+  name: string
+  setId: (val: string) => void
+  setName: (val: string) => void
+}
+
+const defaultValue = {
+  id: "FormId",
+  name: "",
+  setId: () => undefined,
+  setName: () => undefined,
+}
+
+const FormContext = createContext<Context>(defaultValue)
+
+export const useFormContext = () => useContext(FormContext)
+
+export const FormProvider = ({ children }: { children: ReactNode }) => {
+  const [state, setState] = useState(defaultValue)
+
+  const value = useMemo(() => {
+    return {
+      id: state.id,
+      name: state.name,
+      setId: (id: string) => setState({ ...state, id }),
+      setName: (name: string) => setState({ ...state, name }),
+    }
+  }, [state])
+
+  return <FormContext.Provider value={value}>{children}</FormContext.Provider>
+}
+```
+
+Since we memoize the Component, it only gets rerendered when props or the formId change.
+When the name changes, the wrapped Component won't be rerendered.
+
+```ts
+export const withFormIdSelector = <TProps extends unknown>(
+  Component: ComponentType<TProps & { formId: string }>
+) => {
+  const MemoisedComponent = React.memo(Component) as ComponentType<
+    TProps & { formId: string }
+  >
+
+  return (props: TProps) => {
+    const { id } = useFormContext()
+
+    return <MemoisedComponent {...props} formId={id} />
+  }
+}
+```
+
+We can do even more, make the HOC a generic selector for form context like this:
+
+```ts
+import React, { ComponentType } from "react"
+import { useFormContext, Context } from "../context"
+
+export const withContextSelector = <
+  TProps extends unknown,
+  TValue extends unknown
+>(
+  Component: ComponentType<TProps & Record<string, TValue>>,
+  selectors: Record<string, (data: Context) => TValue>
+): ComponentType<Record<string, TValue>> => {
+  const MemoisedComponent = React.memo(Component) as ComponentType<
+    Record<string, TValue>
+  >
+
+  return (props: TProps & Record<string, TValue>) => {
+    const data = useFormContext()
+    const contextProps = Object.keys(selectors).reduce((acc, key) => {
+      acc[key] = selectors[key](data)
+
+      return acc
+    }, {})
+
+    return <MemoisedComponent {...props} {...contextProps} />
+  }
+}
+```
+
+Then use it as follows:
+
+```ts
+const ComponentWithFormIdAndCountryNameSelectors = withContextSelector(
+  Component,
+  {
+    formId: (data) => data.id,
+    countryName: (data) => data.country,
+  }
+)
+```
