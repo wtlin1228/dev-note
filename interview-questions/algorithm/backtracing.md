@@ -188,11 +188,11 @@ function rob(root: TreeNode | null): number {
 
 ### Sudoku Solver
 
-Time Complexity: O((9!)^9)
+Time Complexity: $O((9!)^9)$
 
-Space Complexity: O(1)
+Space Complexity: $O(1)$
 
-- each candidates map takes O(81)
+- each candidates map takes $O(81)$
 
 ```ts
 type CandidatesMap = Map<number, Set<string>>
