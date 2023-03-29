@@ -5,6 +5,8 @@
 - [51. N-Queens](https://leetcode.com/problems/n-queens/)
 - [79. Word Search](https://leetcode.com/problems/word-search/)
 - [337. House Robber III](https://leetcode.com/problems/house-robber-iii/)
+- [93. Restore IP Addresses](https://leetcode.com/problems/restore-ip-addresses/)
+- [37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/)
 
 ### N-Queens
 
@@ -181,5 +183,103 @@ function rob(root: TreeNode | null): number {
 
   const [notRobRoot, robRoot] = dfs(root)
   return Math.max(notRobRoot, robRoot)
+}
+```
+
+### Sudoku Solver
+
+Time Complexity: O((9!)^9)
+
+Space Complexity: O(1)
+
+- each candidates map takes O(81)
+
+```ts
+type CandidatesMap = Map<number, Set<string>>
+
+const getGridIdx = (rowIdx: number, colIdx: number) =>
+  Math.floor(rowIdx / 3) * 3 + Math.floor(colIdx / 3)
+
+const numbers = Array.from({ length: 9 }, (_, idx) => String(idx + 1))
+
+const createCandidatesMap = (): CandidatesMap =>
+  new Map(Array.from({ length: 9 }, (_, idx) => [idx, new Set(numbers)]))
+
+/**
+ Do not return anything, modify board in-place instead.
+ */
+function solveSudoku(board: string[][]): void {
+  const rowCandidates = createCandidatesMap()
+  const colCandidates = createCandidatesMap()
+  const gridCandidates = createCandidatesMap()
+
+  for (let [rowIdx, row] of board.entries()) {
+    for (let [colIdx, char] of row.entries()) {
+      if (char !== ".") {
+        rowCandidates.get(rowIdx).delete(char)
+        colCandidates.get(colIdx).delete(char)
+        const gridIdx = getGridIdx(rowIdx, colIdx)
+        gridCandidates.get(gridIdx).delete(char)
+      }
+    }
+  }
+
+  let isDone = false
+
+  const backtracing = (
+    board: string[][],
+    row: number,
+    col: number,
+    rowCandidates: CandidatesMap,
+    colCandidates: CandidatesMap,
+    gridCandidates: CandidatesMap
+  ) => {
+    if (isDone) {
+      return
+    }
+
+    while (row < 9 && board[row][col] !== ".") {
+      col += 1
+      if (col === 9) {
+        row += 1
+        col = 0
+      }
+    }
+
+    if (row === 9) {
+      isDone = true
+      return
+    }
+
+    for (let i = 1; i <= 9; i++) {
+      const char = String(i)
+      if (
+        rowCandidates.get(row).has(char) &&
+        colCandidates.get(col).has(char) &&
+        gridCandidates.get(getGridIdx(row, col)).has(char)
+      ) {
+        board[row][col] = char
+        rowCandidates.get(row).delete(char)
+        colCandidates.get(col).delete(char)
+        gridCandidates.get(getGridIdx(row, col)).delete(char)
+        backtracing(
+          board,
+          row,
+          col,
+          rowCandidates,
+          colCandidates,
+          gridCandidates
+        )
+        if (!isDone) {
+          board[row][col] = "."
+          rowCandidates.get(row).add(char)
+          colCandidates.get(col).add(char)
+          gridCandidates.get(getGridIdx(row, col)).add(char)
+        }
+      }
+    }
+  }
+
+  backtracing(board, 0, 0, rowCandidates, colCandidates, gridCandidates)
 }
 ```
