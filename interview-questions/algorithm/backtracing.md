@@ -7,6 +7,7 @@
 - [337. House Robber III](https://leetcode.com/problems/house-robber-iii/)
 - [93. Restore IP Addresses](https://leetcode.com/problems/restore-ip-addresses/)
 - [37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/)
+- [473. Matchsticks to Square](https://leetcode.com/problems/matchsticks-to-square/)
 
 ### N-Queens
 
@@ -281,5 +282,88 @@ function solveSudoku(board: string[][]): void {
   }
 
   backtracing(board, 0, 0, rowCandidates, colCandidates, gridCandidates)
+}
+```
+
+### Matchsticks to Square
+
+You are given an integer array matchsticks where matchsticks[i] is the length of the ith matchstick. You want to use all the matchsticks to make one square. You should not break any stick, but you can link them up, and each matchstick must be used exactly one time.
+
+Return true if you can make this square and false otherwise.
+
+Example 1:
+
+Input: matchsticks = [1,1,2,2,2]
+Output: true
+Explanation: You can form a square with length 2, one side of the square came two sticks with length 1.
+
+Example 2:
+
+Input: matchsticks = [3,3,3,3,4]
+Output: false
+Explanation: You cannot find a way to form a square with all the matchsticks.
+
+Time Complexity: $O(4^n)$
+
+Space Complexity: $O(n)$, for recursive call stacks
+
+```ts
+function makesquare(matchsticks: number[]): boolean {
+  if (matchsticks.length < 4) {
+    return false
+  }
+
+  const sum = matchsticks.reduce((acc, curr) => acc + curr, 0)
+  if (sum % 4 !== 0) {
+    return false
+  }
+
+  const side = sum / 4
+
+  for (let matchstick of matchsticks) {
+    if (matchstick > side) {
+      return false
+    }
+  }
+
+  return canMakesSquare(side, matchsticks)
+}
+
+const canMakesSquare = (side: number, matchsticks: number[]) => {
+  // Sort our matchsticks sizes in reverse order before processing them recursively.
+  // Trying a longer matchstick first will get to negative conclusion earlier.
+  matchsticks.sort((a, b) => b - a)
+
+  let isDone = false
+
+  const backtracing = (
+    sides: number[] = [0, 0, 0, 0],
+    stickIdx: number = 0
+  ) => {
+    if (stickIdx === matchsticks.length) {
+      if (
+        sides[0] === sides[1] &&
+        sides[1] === sides[2] &&
+        sides[2] === sides[3]
+      ) {
+        isDone = true
+      }
+      return
+    }
+
+    if (isDone) {
+      return
+    }
+
+    for (let i = 0; i < sides.length; i++) {
+      sides[i] += matchsticks[stickIdx]
+      if (sides[i] <= side) {
+        backtracing(sides, stickIdx + 1)
+      }
+      sides[i] -= matchsticks[stickIdx]
+    }
+  }
+
+  return isDone
 }
 ```
