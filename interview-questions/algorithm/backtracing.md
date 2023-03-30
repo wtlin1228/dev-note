@@ -308,12 +308,13 @@ Time Complexity: $O(4^n)$
 Space Complexity: $O(n)$, for recursive call stacks
 
 ```ts
-function makesquare(matchsticks: number[]): boolean {
+function makesquare(matchsticks) {
   if (matchsticks.length < 4) {
     return false
   }
 
   const sum = matchsticks.reduce((acc, curr) => acc + curr, 0)
+
   if (sum % 4 !== 0) {
     return false
   }
@@ -326,44 +327,26 @@ function makesquare(matchsticks: number[]): boolean {
     }
   }
 
-  return canMakesSquare(side, matchsticks)
-}
-
-const canMakesSquare = (side: number, matchsticks: number[]) => {
-  // Sort our matchsticks sizes in reverse order before processing them recursively.
-  // Trying a longer matchstick first will get to negative conclusion earlier.
-  matchsticks.sort((a, b) => b - a)
-
-  let isDone = false
-
-  const backtracing = (
-    sides: number[] = [0, 0, 0, 0],
-    stickIdx: number = 0
-  ) => {
+  const backtracing = (sides = [0, 0, 0, 0], stickIdx = 0) => {
     if (stickIdx === matchsticks.length) {
-      if (
-        sides[0] === sides[1] &&
-        sides[1] === sides[2] &&
-        sides[2] === sides[3]
-      ) {
-        isDone = true
-      }
-      return
-    }
-
-    if (isDone) {
-      return
+      return (
+        sides[0] === sides[1] && sides[1] === sides[2] && sides[2] === sides[3]
+      )
     }
 
     for (let i = 0; i < sides.length; i++) {
       sides[i] += matchsticks[stickIdx]
       if (sides[i] <= side) {
-        backtracing(sides, stickIdx + 1)
+        if (backtracing(sides, stickIdx + 1)) {
+          return true
+        }
       }
       sides[i] -= matchsticks[stickIdx]
     }
+    return false
   }
 
-  return isDone
+  matchsticks.sort((a, b) => b - a)
+  return backtracing()
 }
 ```
