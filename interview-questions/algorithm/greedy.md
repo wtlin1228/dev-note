@@ -17,6 +17,7 @@ Greedy algorithms work by recursively constructing a solution from the smallest 
 - [55. Jump Game](https://leetcode.com/problems/jump-game/)
 - [881. Boats to Save People](https://leetcode.com/problems/boats-to-save-people/)
 - [134. Gas Station](https://leetcode.com/problems/gas-station/)
+- [1029. Two City Scheduling](https://leetcode.com/problems/two-city-scheduling/)
 
 ### Gas Station
 
