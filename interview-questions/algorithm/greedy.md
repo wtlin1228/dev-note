@@ -18,6 +18,7 @@ Greedy algorithms work by recursively constructing a solution from the smallest 
 - [881. Boats to Save People](https://leetcode.com/problems/boats-to-save-people/)
 - [134. Gas Station](https://leetcode.com/problems/gas-station/)
 - [1029. Two City Scheduling](https://leetcode.com/problems/two-city-scheduling/)
+- [871. Minimum Number of Refueling Stops](https://leetcode.com/problems/minimum-number-of-refueling-stops/)
 
 ### Gas Station
 
@@ -102,5 +103,63 @@ function canCompleteCircuit(gas: number[], cost: number[]): number {
     }
   }
   return totalTank >= 0 ? startStation : -1
+}
+```
+
+### Minimum Number of Refueling Stops
+
+Time Complexity: $O(nlogn)$
+
+- n is the stations count
+- `heap.pop()` take O(n) time
+
+Space Complexity: $O(n)$
+
+- n is the stations count
+- store each gas into the heap
+
+```rust
+use std::collections::BinaryHeap;
+
+fn min_refuel_stops(target: i32, start_fuel: i32, stations: Vec<Vec<i32>>) -> i32 {
+    let mut heap: BinaryHeap<i32> = BinaryHeap::new();
+    let mut current_fuel = start_fuel;
+    let mut refuel_stops = 0;
+
+    for station in &stations {
+        let position = station[0];
+        let fuel = station[1];
+
+        while current_fuel < position {
+            if let Some(fuel) = heap.pop() {
+                current_fuel += fuel;
+                refuel_stops += 1;
+            } else {
+                return -1;
+            }
+        }
+
+        heap.push(fuel);
+    }
+
+    while current_fuel < target {
+        if let Some(fuel) = heap.pop() {
+            current_fuel += fuel;
+            refuel_stops += 1;
+        } else {
+            return -1;
+        }
+    }
+
+    refuel_stops
+}
+
+fn main() {
+    let refuel = min_refuel_stops(
+        100,
+        10,
+        vec![vec![10, 60], vec![20, 30], vec![30, 30], vec![60, 40]],
+    );
+    println!("refuel: {}", refuel)
 }
 ```
