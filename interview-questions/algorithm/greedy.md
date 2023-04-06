@@ -19,6 +19,7 @@ Greedy algorithms work by recursively constructing a solution from the smallest 
 - [134. Gas Station](https://leetcode.com/problems/gas-station/)
 - [1029. Two City Scheduling](https://leetcode.com/problems/two-city-scheduling/)
 - [871. Minimum Number of Refueling Stops](https://leetcode.com/problems/minimum-number-of-refueling-stops/)
+- [45. Jump Game II](https://leetcode.com/problems/jump-game-ii/)
 
 ### Gas Station
 
