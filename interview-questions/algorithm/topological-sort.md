@@ -153,6 +153,7 @@ $O(V + E)$, where
 - [269. Alien Dictionary](https://leetcode.com/problems/alien-dictionary/)
 - [444. Sequence Reconstruction](https://leetcode.com/problems/sequence-reconstruction/)
 - [310. Minimum Height Trees](https://leetcode.com/problems/minimum-height-trees/)
+- [2115. Find All Possible Recipes from Given Supplies](https://leetcode.com/problems/find-all-possible-recipes-from-given-supplies/)
 
 ### All Course Schedule Orders
 
@@ -173,7 +174,7 @@ Output:
 12. [1, 3, 2, 0, 5, 4]
 13. [1, 3, 2, 0, 4, 5]
 
-Time Complexity: $O(V! * E)$
+Time Complexity: $O(V + E)$
 
 Space Complexity: $O(V! + V^2 + E)$
 
@@ -318,7 +319,7 @@ Time Complexity:
 
   - L is the overall length of words
 
-- topological sort takes $O(V! * E)$, where
+- topological sort takes $O(V + E)$, where
 
   - `V` is the total number of vertices
   - `E` is the total number of edges in the graph.
@@ -526,5 +527,64 @@ function findMinHeightTrees(n: number, edges: number[][]): number[] {
   }
 
   return leaves
+}
+```
+
+### Find All Possible Recipes from Given Supplies
+
+```ts
+function findAllRecipes(
+  recipes: string[],
+  ingredients: string[][],
+  supplies: string[]
+): string[] {
+  // 0. make searching recipes and supplies O(1)
+  const recipesSet = new Set<string>(recipes)
+  const suppliesSet = new Set<string>(supplies)
+
+  // 1. build the graph
+  const inDegree = new Map<string, number>(
+    recipes.map((recipe, idx) => [recipe, ingredients[idx].length])
+  )
+  const graph = new Map<string, Set<string>>(
+    recipes.map((recipe) => [recipe, new Set()])
+  )
+
+  let sources = new Set<string>()
+  for (let [idx, recipe] of recipes.entries()) {
+    for (let ingredient of ingredients[idx]) {
+      if (suppliesSet.has(ingredient)) {
+        // we can get ingredient from suppliers immediately
+        inDegree.set(recipe, inDegree.get(recipe) - 1)
+        // 2. find the start points
+        if (inDegree.get(recipe) === 0) {
+          sources.add(recipe)
+        }
+      } else if (recipesSet.has(ingredient)) {
+        // we need to wait for this ingredient being produced
+        graph.get(ingredient).add(recipe)
+      }
+    }
+  }
+
+  // 3. bst, and update the supplies
+  const res = []
+  while (sources.size > 0) {
+    const nextSources = new Set<string>()
+
+    for (let source of sources) {
+      res.push(source)
+      for (let child of graph.get(source)) {
+        inDegree.set(child, inDegree.get(child) - 1)
+        if (inDegree.get(child) === 0) {
+          nextSources.add(child)
+        }
+      }
+    }
+
+    sources = nextSources
+  }
+
+  return res
 }
 ```
