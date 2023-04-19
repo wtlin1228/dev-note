@@ -1,0 +1,2 @@
+- prettify the TypeScript errors - https://github.com/yoavbls/pretty-ts-errors
+- validation with schema - https://github.com/colinhacks/zod
