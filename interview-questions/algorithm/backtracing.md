@@ -8,6 +8,7 @@
 - [93. Restore IP Addresses](https://leetcode.com/problems/restore-ip-addresses/)
 - [37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/)
 - [473. Matchsticks to Square](https://leetcode.com/problems/matchsticks-to-square/)
+- [247. Strobogrammatic Number II](https://leetcode.com/problems/strobogrammatic-number-ii/)
 
 ### N-Queens
 
@@ -348,5 +349,89 @@ function makesquare(matchsticks) {
 
   matchsticks.sort((a, b) => b - a)
   return backtracing()
+}
+```
+
+### Strobogrammatic Number II
+
+Given an integer n, return all the strobogrammatic numbers that are of length n. You may return the answer in any order.
+
+A strobogrammatic number is a number that looks the same when rotated 180 degrees (looked at upside down).
+
+Example 1:
+
+Input: n = 2
+Output: ["11","69","88","96"]
+Example 2:
+
+Input: n = 1
+Output: ["0","1","8"]
+
+Constraints:
+
+1 <= n <= 14
+
+---
+
+Time Complexity: $O((5 ^ (n / 2) + 1) * n)$
+
+Space Complexity: $O(n / 2)$
+
+- maximum level = (n / 2) + 1
+- branches = 5 (1, 6, 8, 9, 0)
+
+---
+
+```ts
+const MAP = {
+  "1": "1",
+  "6": "9",
+  "8": "8",
+  "9": "6",
+  "0": "0",
+}
+
+function recursion(
+  res: string[],
+  count: number,
+  isOdd: boolean,
+  acc: string[]
+) {
+  if (acc[0] === "0") {
+    // number with leading-zero is not allowed
+    return
+  }
+
+  if (count === 0) {
+    const leftPart = acc.join("")
+    const rightPart = [...acc]
+      .reverse()
+      .map((x) => MAP[x])
+      .join("")
+    if (isOdd) {
+      ;["0", "1", "8"].forEach((mid) => {
+        res.push(leftPart + mid + rightPart)
+      })
+    } else {
+      res.push(leftPart + rightPart)
+    }
+    return
+  }
+
+  ;["0", "1", "6", "8", "9"].forEach((x) => {
+    acc.push(x)
+    recursion(res, count - 1, isOdd, acc)
+    acc.pop()
+  })
+}
+
+function findStrobogrammatic(n: number): string[] {
+  if (n === 1) {
+    return ["0", "1", "8"]
+  }
+
+  const res = []
+  recursion(res, Math.floor(n / 2), n % 2 === 1, [])
+  return res
 }
 ```
