@@ -1,3 +1,8 @@
+### Benefits of using GraphQL
+
+- Entity relationship in GraphQL is useful for data aggregator, because no single service has complete context into how the system works. If we're using something like Elasticsearch to search across data, the GraphQL relationship can be useful in re-indexing our data to keep the search index up to date.
+-
+
 ### Common problems of using a big monolithic GraphQL schema:
 
 - Lack of focus on domain responsibilities caused by the presence of unrelated types and fields
