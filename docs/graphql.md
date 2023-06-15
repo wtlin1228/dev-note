@@ -34,11 +34,11 @@
 - Splitting off subgraph's incrementally enables teams to reap the benefits sooner.
 -
 
-## In Netflix (Marketing Technology team)
+## In Netflix
 
-- Our learnings from adopting GraphQL
-- GraphQL Search Indexing
-- How Netflix Scales its API with GraphQL Federation (Part 1)
+- [Our learnings from adopting GraphQL](https://netflixtechblog.com/our-learnings-from-adopting-graphql-f099de39ae5f)
+- [GraphQL Search Indexing](https://netflixtechblog.com/graphql-search-indexing-334c92e0d8d5)
+- [How Netflix Scales its API with GraphQL Federation (Part 1)](https://netflixtechblog.com/how-netflix-scales-its-api-with-graphql-federation-part-1-ae3557c187e2)
 - How Netflix Scales its API with GraphQL Federation (Part 2)
 - Open Sourcing the Netflix Domain Graph Service Framework: GraphQL for Spring Boot
 - Beyond REST
@@ -185,3 +185,24 @@ This can be solved by using the data masking pattern in the client side.
 #### Search Indexing
 
 Entity relationship in GraphQL is useful for data aggregator, because no single service has complete context into how the system works. If we're using something like Elasticsearch to search across data, the GraphQL relationship can be useful in re-indexing our data to keep the search index up to date.
+
+### GraphQL Federation
+
+Key architectural components:
+
+- Domain Graph Service (DGS)
+- Schema Registry
+- GraphQL Gateway
+
+Implementation details:
+
+- Schema Composition
+- Query Planing and Execution
+- Entity Resolver
+
+The evolution of an API architecture:
+
+- Monolith
+- Direct Access
+- Gateway Aggregation Layer
+- Federated Gateway
