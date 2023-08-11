@@ -15,6 +15,7 @@
 # JavaScript
 
 1. Defer all non-critical scripts.
+2. Load 3-rd scripts by web worker. (See Partytown)
 
 # LCP
 
