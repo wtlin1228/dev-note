@@ -375,7 +375,7 @@ Constraints:
 
 Time Complexity: $O((5 ^ (n / 2) + 1) * n)$
 
-Space Complexity: $O(n / 2)$
+Space Complexity: $O(n / 2)$ if we don't count the space for result
 
 - maximum level = (n / 2) + 1
 - branches = 5 (1, 6, 8, 9, 0)

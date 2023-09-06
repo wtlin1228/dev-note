@@ -133,3 +133,43 @@ Ex: google.com on mobile devices
 - Opt-in at https://hstspreload.org/
 
 By adding the HSTS to the header, we can save a redirect. This header tells the browser this site is HTTPS only. So the browser can always go to HTTPS instead of HTTP.
+
+## Hacking LCP
+
+[103 Early Hints](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/103)
+
+## Optimizing Data Transfer
+
+Enable [HTTP3](https://developer.mozilla.org/en-US/docs/Glossary/HTTP_3)
+
+HTTP3 is using UDP, not TCP, so it doesn't waste time doing the hand shaking. And HTTP3 has a thin layer on the UDP to guarantee that no packets is lost.
+
+Use [Zopfli](https://github.com/google/zopfli)
+
+Use [Brotli](https://github.com/google/brotli)
+
+## Using Modern Image Formats
+
+- SVG
+- WebP, AVIF, Guetzli JPEG, Zopfli PNG
+- Muted videos instead of GIFs
+
+Tools: https://squoosh.app/
+
+## Cache Control, dns-prefetch, and Preconnect
+
+### Cache Control
+
+If some files (ex: xxx.eq3us2m1.js) will never expire, use `Cache-Control: immutable`. So the browser doesn't have to make a conditional request ever.
+
+It's a common pattern to serve assets from the cache, ex: logo, then fetch the logo in the background for the later. Use `Cache-Control: stale-while-revalidate=99`.
+
+### DNS prefetch & preconnect
+
+Use `dns-prefetch` to warn up the engines. It enable browser to start the DNS queries earlier (save ~100ms) and build the TCP and TLS connection (save ~100ms).
+
+`<link rel="dns-prefetch" href="https://newdomain.com">`
+
+`<link rel="preconnect" href="https://newdoamin.com">`
+
+It can also be used in early hint.

@@ -1,0 +1,3 @@
+- https://www.rasmusolsson.dev/posts/visualizing-project-dependencies
+- https://github.com/sverweij/dependency-cruiser
+- https://gitlab.com/graphviz/graphviz
