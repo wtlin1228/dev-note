@@ -173,3 +173,47 @@ Use `dns-prefetch` to warn up the engines. It enable browser to start the DNS qu
 `<link rel="preconnect" href="https://newdoamin.com">`
 
 It can also be used in early hint.
+
+## Lazy Loading Images & Fonts
+
+Lazy load the images below the fold.
+
+```html
+<img loading="lazy" />
+```
+
+If the images is important, decode it sync.
+
+```html
+<img decoding="sync" />
+```
+
+If not, decode it async.
+
+```html
+<img decoding="async" />
+```
+
+Avoid FOUT (Flash of Unstyled Text)
+
+`font-display: swap` - the browser will download the font and wait 200ms for that, if the font doesn't be downloaded within 200ms, the browser will use the next font to display the text then swap it when font is ready.
+
+```css
+font-display: swap;
+```
+
+```css
+font-display: optional;
+```
+
+## HTTP Client Hints
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Client_hints
+
+## Optimizing Interactions
+
+Move Heavy tasks to WebAssembly. (encoding and decoding for videos / images)
+
+# Reference
+
+https://github.com/wtlin1228/adv-webperf
