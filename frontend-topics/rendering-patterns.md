@@ -1,0 +1,3 @@
+- [Rendering on the Web](https://web.dev/rendering-on-the-web/) - Jason Miller & Addy Osmani, May 2023
+- [Rendering Patterns Introduction](https://www.patterns.dev/posts/rendering-patterns) - Andy Osmani & Lydia Hallie
+- [Patterns for Building JavaScript Websites in 2022](https://dev.to/this-is-learning/patterns-for-building-javascript-websites-in-2022-5a93) - Ryan Carniato, June 2022
