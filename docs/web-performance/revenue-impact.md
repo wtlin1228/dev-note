@@ -40,3 +40,33 @@
   - CLS improved by 250% from 0.25 to 0.09
   - LCP improved by 80% from 4.5 seconds to 2.5 seconds
 - https://web.dev/economic-times-cwv/
+
+### Mobify
+
+- Every 100ms faster → 1% more conversions (earning +$380,000/yr)
+- https://web.dev/why-speed-matters/
+
+### AutoAnything
+
+- 50% faster → 12% more sales
+- https://www.digitalcommerce360.com/2010/08/19/web-accelerator-revs-conversion-and-sales-autoanything/
+
+### Furniture Village
+
+- 20% faster → 10% more conversions
+- https://www.thinkwithgoogle.com/intl/en-gb/marketing-strategies/app-and-mobile/furniture-village-and-greenlight-slash-page-load-times-boosting-user-experience/
+
+### Pinterest
+
+- 40% faster → 15% more sign-ups
+- https://medium.com/pinterest-engineering/driving-user-growth-with-performance-improvements-cfc50dafadd7
+
+### COOK
+
+- 850ms faster → 7% more conversions
+- https://web.dev/why-speed-matters/
+
+### BBC
+
+- Every 1 second slower → 10% fewer users
+- https://www.creativebloq.com/features/how-the-bbc-builds-websites-that-scale
