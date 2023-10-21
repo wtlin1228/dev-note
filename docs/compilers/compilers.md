@@ -222,6 +222,42 @@ x1...xi ∉ L(R)
 
 It's very important for compilers to do good error handling. They can't simply crash. The solution is to write a category of error strings and put it last in priority.
 
+## Finite Automata
+
+- Regular expressions = specification
+- Finite automata = implementation
+
+A finite automata consists of
+
+- An input alphabet `Σ`
+- A finite set of states `S`
+- A start state `n`
+- A set of accepting states `F ⊆ S`
+- A set of transitions `state ->input state`
+
+Language of a finite automata = set of accepted strings
+
+Example: A finite automation that accepts only "1"
+
+![simple-finite-automata](./simple-finite-automata.png)
+
+Example: A finite automaton that accepts any number of 1's followed by a single 0
+
+![simple-finite-automata-2](simple-finite-automata-2.png)
+
+ε-moves is another kind of transition, it's a kind of free move from the machine. It can move to a different state without consuming any input.
+
+### Two kinds of Finite Automata
+
+- Deterministic Finite Automata (DFA)
+  - One transition per input per state
+  - No ε-moves
+  - DFAs are faster to execute since there are no choices to consider
+- Nondeterministic Finite Automata (NFA)
+  - Can have multiple transitions for one input in a given state
+  - Can have ε-moves
+  - NFAs are, in general, smaller (exponentially smaller)
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
