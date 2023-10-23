@@ -258,6 +258,16 @@ Example: A finite automaton that accepts any number of 1's followed by a single 
   - Can have ε-moves
   - NFAs are, in general, smaller (exponentially smaller)
 
+### Regular Expression to NFAs
+
+Lexical Specification -> Regular expressions -> NFA -> DFA -> Table driven implementation of DFA
+
+![regex-to-NFA](regex-to-NFA.png)
+
+Example: `(1+0)*1`
+
+![rexp-to-NFA-example](rexp-to-NFA-example.png)
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
