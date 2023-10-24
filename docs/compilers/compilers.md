@@ -268,6 +268,90 @@ Example: `(1+0)*1`
 
 ![rexp-to-NFA-example](rexp-to-NFA-example.png)
 
+### NFA to DFA
+
+`ε-closure(State A) = S` means State A could reach S (a set of states) by only epsilon moves.
+
+|        | NFA          | DFA                          |
+| ------ | ------------ | ---------------------------- |
+| states | S (count: n) | subset of S (count: 2^n - 1) |
+| start  | s ∈ S        | ε-closure(s)                 |
+| final  | F ∈ S        | { X \| X ∩ F != ɸ}           |
+
+states = subset of {ABCDEFGHIJ}, DFA has `2^10` states
+start = {ABCDHI}
+final = {EGABCDHIJ}
+
+![NFA-with-state-label](NFA-with-state-label.png)
+![DFA](DFA.png)
+
+## Implementing Finite Automata
+
+DFA table can get quite large since a DFA has 2^n states for a NFA with n states. Therefore, sometimes we would implement NFA directly instead of DFA.
+
+DFA and NDA trade between speed and space.
+
+- DFAs are faster but less compact
+- NFAs are concise but slower
+
+### DFA
+
+A DFA can be implemented by a 2D table T
+
+| state \ symbol | a       | b       |
+| -------------- | ------- | ------- |
+| i              | T[i, a] | T[i, b] |
+| j              | T[j, a] | T[j, b] |
+| k              | T[k, a] | T[k, b] |
+
+![DFA-table](DFA-table.png)
+
+| state \ symbol | 0   | 1   |
+| -------------- | --- | --- |
+| S              | T   | U   |
+| T              | T   | U   |
+| U              | T   | U   |
+
+```
+i = 0
+state = 0
+while (input[i]) {
+  state = TABLE[state, input[i]]
+  i++
+}
+```
+
+We can improve the table even further by making the DFA table into 1-dimensional table.
+
+| state | pointer |
+| ----- | ------- |
+| S     | r1      |
+| T     | r1      |
+| U     | r1      |
+
+`r1` is also a 1-dimensional table as following:
+
+| 0   | 1   |
+| --- | --- |
+| T   | U   |
+
+### NFA
+
+![NFA-with-state-label](NFA-with-state-label.png)
+
+| state \ symbol |  0  |  1  |   ε   |
+| -------------- | :-: | :-: | :---: |
+| A              |     |     | {B,H} |
+| B              |     |     | {C,D} |
+| C              |     | {E} |       |
+| D              | {F} |     |       |
+| E              |     |     |  {G}  |
+| F              |     |     |  {G}  |
+| G              |     |     | {A,H} |
+| H              |     |     |  {I}  |
+| I              |     | {J} |       |
+| J              |     |     |       |
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
