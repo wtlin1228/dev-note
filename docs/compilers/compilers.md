@@ -352,6 +352,180 @@ We can improve the table even further by making the DFA table into 1-dimensional
 | I              |     | {J} |       |
 | J              |     |     |       |
 
+## Parsing
+
+A parser takes the sequence of tokens from lexer as input and output the parse tree of the program.
+
+### Context Free Grammars
+
+Not all strings of tokens are programs, parser must distinguish between valid and invalid strings of tokens. So we need:
+
+- a language for describing valid strings of tokens
+- a method for distinguishing valid from invalid strings of tokens
+
+Programming languages have a natural recursive structure. For example in Cool, An `EXPR` is
+
+- if `EXPR` then `EXPR` else `EXPR` fi
+- while `EXPR` loop `EXPR` pool
+- ...
+
+Context-free grammars are a natural notation for this recursive structure.
+
+A CFG consists of
+
+- A set of terminals `T`
+- A set of non-terminals `N`
+- A start symbol `S`
+- A set of productions `X -> Y1...Yn`, where X ∈ N and Yi ∈ N ∪ T ∪ {ε}
+
+#### The Process
+
+1. Begin with a string with only the start symbol `S`
+2. Replace any non-terminal `X` in the string by the right-hand side of some production X -> Y1...Yn
+3. Repeat (2) until there are no non-terminals
+
+#### Definition
+
+Let `G` be a context-free grammar with start symbol `S`. Then the language `L(G)` of `G` is:
+
+`{ a1...an | ∀i ai ∈ T and a1...an is reachable starting from S }`
+
+### Derivation
+
+- A derivation is a sequence of productions
+- A derivation can be drawn as a tree
+  - Start symbol is the tree's root
+  - For a production `X -> Y1...Yn`, add children Y1...Yn to node X
+
+Let's consider this example:
+
+- Grammar
+
+  ```
+  E -> E + E
+     | E * E
+     | (E)
+     | id
+  ```
+
+- String `id * id + id`
+
+The left-most derivation is:
+
+```
+   E
+-> E + E
+-> E * E + E
+-> id * E + E
+-> id * id + E
+-> id * id + id
+```
+
+And the parse tree build upon the left-most derivation is:
+
+```
+          E
+       /  |  \
+      E   +   E
+   /  |  \    |
+  E   *   E   id
+  |       |
+  id      id
+```
+
+- A parse tree has
+  - Terminals at the leaves
+  - Non-terminals at the interior nodes
+- An in-order traversal of the leaves is the original input
+- The parse tree shows the association of operations, the input string does node
+- There is an equivalent notion of right-most derivation
+
+  ```
+    E
+  -> E + E
+  -> E + id
+  -> E * E + id
+  -> E * id + id
+  -> id * id + id
+  ```
+
+Note that right-most and left-most derivations have the same parse tree.
+
+- We are not just interested in whether s ∈ L(G)
+  - We need a parse tree for s
+- A derivation defines a parse tree
+  - But one parse tree may have many derivations
+- Left-most and right-most derivations are important in parser implementation
+
+### Ambiguity
+
+This string `id * id + id` has two parse trees
+
+```
+          E                      E
+       /  |  \                /  |  \
+      E   +   E              E   *   E
+   /  |  \    |              |    /  |  \
+  E   *   E   id             id  E   +   E
+  |       |                      |       |
+  id      id                     id      id
+```
+
+- A grammar is ambiguous if it has more than one parse tree for some string
+  - Equivalently, there is more than one right-most or left-most derivation for some string
+- Ambiguity is BAD
+  - Leaves meaning of some programs ill-defined
+- There are several ways to handle ambiguity
+- Most direct method is to rewrite grammar unambiguously
+
+  ```
+  E -> E' + E | E'
+  E' -> id * E' | id | (E) * E' | (E)
+  ```
+
+  so our `id * id + id` becomes:
+
+  ```
+          E
+       /  |  \
+      E'  +   E
+   /  |  \    |
+  id  *   E'  E'
+          |   |
+          id  id
+  ```
+
+- Enforces precedence of `*` over `+`
+
+  E handles `+`: `E -> E' + E -> E' + E' + E -> ... -> E' + ... + E'`
+  E' handles `*`:
+
+  - `id * E' -> id * id * E' -> ... -> id * ... * id`
+  - `(E) * E' -> (E) * (E) * E' -> ... -> (E) * ... * (E)`
+
+The expression `if E1 then if E2 then E3 else E4` has two parse trees
+
+```
+      if             if
+    / | \           /  \
+   E1 if E4        E1   if
+     /  \              / | \
+    E2  E3           E2  E3 E4
+```
+
+We want to make the `else` matches the closest unmatched `then`
+
+```
+E -> MIF   /* all then are matched */
+   | UIF   /* some then is unmatched */
+
+MIF -> if E then MIF else MIF
+     | OTHER
+
+UIF -> if E then E
+     | if E then MIF else UIF
+```
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
