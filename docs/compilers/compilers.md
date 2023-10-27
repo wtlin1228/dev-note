@@ -526,6 +526,85 @@ UIF -> if E then E
      | if E then MIF else UIF
 ```
 
+## Top-Down Parsing
+
+### Abstract Syntax Trees
+
+A parser traces the derivation of a sequence of tokens, but the rest of the compiler needs a structural representation of the program. Parse Trees is such a data structure, but Abstract Syntax Trees is what we want to work on since it ignore some details.
+
+### Recursive Descent Algorithm
+
+Define boolean functions that check for a match of
+
+- A given token terminal
+
+  `bool term(TOKEN tok) { return *next++ = tok; }`
+
+- The nth production of S
+
+  `bool Sn() {...}`
+
+- Try all productions of S
+
+  `bool S() {...}`
+
+Example:
+
+```
+E -> T | T + E
+T -> int | int * T | (E)
+```
+
+- For production E -> T
+
+  `bool E1() { return T(); }`
+
+- For production E -> T + E
+
+  `bool E2() { return T() && term(PLUS) && E(); }`
+
+- For all productions of E (with backtracking)
+
+  ```
+  bool E() {
+    TOKEN *save = next;
+    return (next = save, E1())
+        || (next = save, E2()); }
+  ```
+
+- Functions for non-terminal T
+
+  ```
+  bool T1() { return term(INT); }
+  bool T2() { return term(INT) && term(TIMES) && T(); }
+  bool T3() { return term(OPEN) && E() && term(CLOSE); }
+
+  bool T() {
+    TOKEN *save = next;
+    return (next = save, T1())
+        || (next = save, T2())
+        || (next = save, T3()); }
+  ```
+
+#### Recursive Descent Algorithm Limitation
+
+Use Recursive Descent Algorithm to parse `(int)` is good.
+
+```
+E -> T | T + E
+T -> int | int * T | (E)
+```
+
+But Recursive Descent Algorithm can't parse `int * int`, it will be rejected since we do not apply backtracking once we have found a production that succeeds for non-terminals.
+
+#### Fix with Left Recursion
+
+- In general, S -> Sα1 | ... | Sαn | β1 | ... | βm
+- All strings derived from S starts with one of `β1,...,βm` and continue with serval instances of `α1,...,αn`
+- Rewrite as
+  - S -> β1S' | ... | βmS'
+  - S' -> α1S' | ... | αnS' | ε
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
