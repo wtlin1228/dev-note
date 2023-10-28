@@ -780,7 +780,7 @@ Follow(S) = {$, a}
 | --- | --- | --------------- | --- |
 | S   |     | `b` and `Sa` ❌ |     |
 
-If a grammar is
+A grammar isn't LL(1) if it is
 
 - not left factored
 - not left recursive
