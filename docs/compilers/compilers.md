@@ -597,13 +597,195 @@ T -> int | int * T | (E)
 
 But Recursive Descent Algorithm can't parse `int * int`, it will be rejected since we do not apply backtracking once we have found a production that succeeds for non-terminals.
 
-#### Fix with Left Recursion
+### Left Recursion (Left Factoring)
 
 - In general, S -> Sα1 | ... | Sαn | β1 | ... | βm
 - All strings derived from S starts with one of `β1,...,βm` and continue with serval instances of `α1,...,αn`
 - Rewrite as
   - S -> β1S' | ... | βmS'
   - S' -> α1S' | ... | αnS' | ε
+
+### Predictive Parsing Algorithm
+
+Like recursive-descent but parser can predict which production to use by looking at the next few tokens and without backtracking. Predictive parsers accepts LL(k) grammars.
+
+- First L: left-to-right
+- Second L: left-most derivation
+- k: k tokens lookahead
+
+For this grammar, it's hard to predict
+
+```
+E -> T | T + E
+T -> int | int * T | (E)
+```
+
+because:
+
+- For `T` two productions start with `int`
+- For `E` it is not clear how to predict
+
+#### Fix the un-predictable grammar with left-factoring
+
+```
+E -> TX
+X -> + E | ε
+T -> intY | (E)
+Y -> * T | ε
+```
+
+#### The LL(1) Parsing Table
+
+| non-terminal \ terminal |  int  | \*  |  +  |  (  |  )  |  $  |
+| ----------------------- | :---: | :-: | :-: | :-: | :-: | :-: |
+| E                       |  TX   |     |     | TX  |     |     |
+| X                       |       |     | + E |     |  ε  |  ε  |
+| T                       | int Y |     |     | (E) |     |     |
+| Y                       |       | \*T |  ε  |     |  ε  |  ε  |
+
+```
+initialize stack = <S$> and next
+repeat
+  case stack of
+    <X, rest>  : if T[X, *next] = Y1...Yn
+                    then stack  <- <Y1...Yn rest>;
+                    else error();
+    <t, rest>  : if t == *next ++
+                    then stack <- <rest>;
+                    else error();
+until stack == < >
+```
+
+#### Parse the `int * int$`
+
+| Stack  | Input       | Action   |
+| ------ | ----------- | -------- |
+| E$     | int \* int$ | TX       |
+| TX$    | int \* int$ | intY     |
+| intYX$ | int \* int$ | terminal |
+| YX$    | \* int$     | \*T      |
+| \*TX$  | \* int$     | terminal |
+| TX$    | int$        | intY     |
+| intYX$ | int$        | terminal |
+| YX$    | $           | ε        |
+| X$     | $           | ε        |
+| $      | $           | ACCEPT   |
+
+```
+              E
+             / \
+            /   \
+           T     X
+          / \    |
+         /   \   ε
+       int    Y
+             / \
+            /   \
+           *     T
+                / \
+               /   \
+             int    Y
+                    |
+                    ε
+```
+
+#### First Sets
+
+Definition: `First(X) = {t | X ->* tα} ∪ {ε | X ->* ε}`
+
+Algorithm sketch:
+
+1. First(t) = {t}, where t is a terminal
+2. ε ∈ First(X)
+   - if X -> ε
+   - if X -> A1...An and ε ∈ First(Ai) for 1 <= A <= n
+3. First(α) ⊆ First(X) if X -> A1...Anα
+   - and ε ∈ First(Ai) for 1 <= A <= n
+
+The first sets of this grammar:
+
+```
+E -> TX
+X -> + E | ε
+T -> intY | (E)
+Y -> * T | ε
+```
+
+| X     | First(X)   |
+| ----- | ---------- |
+| `+`   | `{+}`      |
+| `*`   | `{*}`      |
+| `(`   | `{(}`      |
+| `)`   | `{)}`      |
+| `int` | `{int}`    |
+| `E`   | First(T)   |
+| `T`   | `{(, int}` |
+| `X`   | `{+, ε}`   |
+| `Y`   | `{*, ε}`   |
+
+#### Follow Sets
+
+Definition: `Follow(X) = {t | S ->* βXtδ}`
+
+Algorithm sketch:
+
+1. $ ∈ Follow(S)
+2. First(β) - {ε} ⊆ Follow(X)
+   - For each production A -> αXβ
+3. Follow(A) ⊆ Follow(X)
+   - For each production A -> αXβ where ε ∈ First(β)
+
+The follow sets of this grammar:
+
+```
+E -> TX
+X -> + E | ε
+T -> intY | (E)
+Y -> * T | ε
+```
+
+| X     | Follow(X)      |
+| ----- | -------------- |
+| `+`   | `{(, int}`     |
+| `*`   | `{(, int}`     |
+| `(`   | `{(, int}`     |
+| `)`   | `{$, +, )}`    |
+| `int` | `{*, $, +, )}` |
+| `E`   | `{$, )}`       |
+| `T`   | `{$, +, )}`    |
+| `X`   | `{$, )}`       |
+| `Y`   | `{$, +, )}`    |
+
+#### Construct LL(1) Parsing Table
+
+For each production A -> α in the Grammar G do:
+
+- For each terminal t ∈ First(α) do
+  - T[A, t] = α
+- If ε ∈ First(α), for each t ∈ Follow(A) do
+  - T[A, t] = α
+- If ε ∈ First(α) and $ ∈ Follow(A) do
+  - T[A, $] = α
+
+#### Most Programming Language CFGs Are Not LL(1)
+
+If any entry is multiply defined then G is not LL(1)
+
+For example: S -> Sa | b
+
+First(S) = {b}
+Follow(S) = {$, a}
+
+|     | a   | b               | $   |
+| --- | --- | --------------- | --- |
+| S   |     | `b` and `Sa` ❌ |     |
+
+If a grammar is
+
+- not left factored
+- not left recursive
+- ambiguous
+- other grammar are not LL(1), ex: need more than 1 lookahead
 
 # Resource
 
