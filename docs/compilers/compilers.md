@@ -787,6 +787,107 @@ A grammar isn't LL(1) if it is
 - ambiguous
 - other grammar are not LL(1), ex: need more than 1 lookahead
 
+## Bottom-up Parsing
+
+- Bottom-up parsing is more general than (deterministic) top-down parsing.
+  - And just as efficient as top-down parsing
+  - And it's built on ideas in top-down parsing
+- Bottom-up is the preferred method
+- Bottom-up parsers don't need left-factored grammars
+- Revert to the "natural" grammar for our example:
+
+  ```
+  E -> T + E | T
+  T -> int * T | int | (E)
+  ```
+
+- Consider the string `int * int + int`
+
+Bottom-up parsing reduces a string to the start symbol by inverting productions.
+
+| input string      | inverted production |
+| ----------------- | ------------------- |
+| `int * int + int` | `T -> int`          |
+| `int * T + int`   | `T -> int * T`      |
+| `T + int`         | `T -> int`          |
+| `T + T`           | `E -> T`            |
+| `T + E`           | `E -> T + E`        |
+| `E`               |                     |
+
+### Important Fact #1: A bottom-up parser traces a rightmost derivation in reverse
+
+- Let `αβω` be a step of a bottom-up parse
+- Assume the next production is by `X -> β`
+- Then `ω` is a string of terminals
+
+### Actions
+
+Bottom-up parsing uses only two kinds of actions:
+
+- Shift: Move `|` one place to the right
+
+  `ABC|xyz => ABCx|yz`
+
+- Reduce: Apply an inverse production at the right end of the left string
+
+  `Cbxy|ijk => CbA|ijk`, if `A -> xy` is a production
+
+| left string    | input string         | action                |
+| -------------- | -------------------- | --------------------- |
+| `\|`           | `\|int * int + int`  | shift                 |
+| `int \|`       | `int \| * int + int` | shift                 |
+| `int * \|`     | `int * \| int + int` | shift                 |
+| `int * int \|` | `int * int \| + int` | reduce `T -> int`     |
+| `int * T \|`   | `int * T \| + int`   | reduce `T -> int * T` |
+| `T \|`         | `T \| + int`         | shift                 |
+| `T + \|`       | `T + \| int`         | shift                 |
+| `T + int \|`   | `T + int \|`         | reduce `T -> int`     |
+| `T + T \|`     | `T + T \|`           | reduce `E -> T`       |
+| `T + E \|`     | `T + E \|`           | reduce `E -> T + E`   |
+| `E \|`         | `E \|`               |                       |
+
+### Handles
+
+- In a given state, more than one action (shift or reduce) may lead to a valid parse
+- If it is legal to shift or reduce, there is a shift-reduce conflict
+- If it is legal to reduce by two different productions, there is a reduce-reduce conflict
+
+Some reductions are fatal mistakes, for example:
+
+```
+E -> T + E | T
+T -> int * T | int | (E)
+```
+
+Consider step `int | * int + int`
+
+- We could reduce by `T -> int` giving `T | * int + int`
+- But there is no way to reduce to the start symbol `E`
+
+So, we want to reduce only if the result can still be reduced to the start symbol
+
+- Assume a rightmost derivation
+
+  `S ->* αXω -> αβω`
+
+- Because `S` can go to `αX`, so its ok to reduce `X -> β`
+- Then, `αβ` is handle of `αβω`
+
+Definition: A handle is a reduction that also allows further reductions back to the start symbol.
+
+### Important Fact #2: In shift-reduce parsing, handles appear only at the top of the stack, never inside
+
+- Informal induction on # of reduce moves:
+- True initially, stack is empty
+- Immediately after reducing a handle
+  – right-most non-terminal on top of the stack
+  – next handle must be to right of right-most non-terminal, because this is a right-most derivation
+  – Sequence of shift moves reaches next handle
+- In shift-reduce parsing, handles always appear at the top of the stack
+- Handles are never to the left of the right-most non-terminal
+  – Therefore, shift-reduce moves are sufficient; the `|` need never move left
+- Bottom-up parsing algorithms are based on recognizing handles
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
