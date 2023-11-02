@@ -888,6 +888,122 @@ Definition: A handle is a reduction that also allows further reductions back to 
   – Therefore, shift-reduce moves are sufficient; the `|` need never move left
 - Bottom-up parsing algorithms are based on recognizing handles
 
+### Recognizing Handles
+
+- Bad News
+  - There are no known efficient algorithms to recognize handles
+- Good News
+  - There are good heuristics for guessing handles
+  - On some CFGs, the heuristics always guess correctly
+
+![CFGs](CFGs.png)
+
+Definition: `α` is a viable prefix if there is an `ω` such that `α|ω` is a state of a shift-reduce parser
+
+### Important Fact #3: For any grammar, the set of viable prefixes is a regular language
+
+#### Introduce item to compute automata that accept viable prefixes
+
+- An item is a production with a "." somewhere on the rhs
+- The items for `T -> (E)` are
+  - `T -> .(E)`
+  - `T -> (.E)`
+  - `T -> (E.)`
+  - `T -> (E).`
+- The only item for `X -> ε` is `X -> .`
+- Items are often called "LR(0) items"
+
+Consider the input `(int)`
+
+```
+E -> T + E | T
+T -> int * T | int | (E)
+```
+
+- Then `(E|)` is a state of a shift-reduce parse
+- `(E` is a prefix of the rhs of `T ->(E)`
+  - will be reduced after the next shift
+- Item `T -> (E.)` says that so far we have seen `(E` of this production and hope to see `(`
+
+The structure of stack is not just arbitrary collections of symbols. In fact it has this very particular structure that holds the prefixes of right hand side.
+
+- The stack have many prefixes of rhs's
+
+  `Prefix(1)Prefix(2)...Prefix(n-1)Prefix(n)`
+
+- Let `Prefix(i)` be a prefix of rhs of `Xi -> αi`
+  - `Prefix(i)` will eventually reduce to `Xi`
+  - The missing part of `αi-1` starts with `Xi`
+  - i.e. there is a `Xi-1 -> Prefix(i-1)Xiβ` for `β`
+- Recursively, `Prefix(k+1)...Prefix(n)` eventually reduces to the missing part of `αk`
+
+#### Algorithm for Recognizing Viable Prefixes
+
+1. Add a dummy production `S' -> S` to `G`
+2. The NFA states are the items of `G`
+
+   - including the extra production
+
+3. For item `E -> α.Xβ` add transition
+
+   `E -> α.Xβ ->X E -> αX.β`
+
+4. For item `E -> α.Xβ` and production `X -> γ` add
+
+   `E -> α.Xβ ->ε X -> .γ`
+
+5. Every state is an accepting state
+6. Start state is `S' -> S`
+
+![NFA-with-viable-prefix](NFA-with-viable-prefix.png)
+
+#### Valid Items
+
+![DFA-with-viable-prefix](DFA-with-viable-prefix.png)
+
+### SLR Parsing
+
+LR(0) Parsing is a very week bottom up parsing algorithm.
+
+- Assume
+  - stack contains `α`
+  - next input is `t`
+  - DFA on input `α` terminates in state `s`
+- Reduce by `X -> β` if
+  - `s` contains item `X -> β.`
+- Shift if
+  - `s` contains item `X -> β.tω`
+  - equivalent to saying `s` has a transition labeled `t`
+
+Conflict:
+
+- LR(0) has reduce/reduce conflict if:
+  - Any state has two reduce items:
+  - `X -> β.` and `Y -> ω.`
+- LR(0) has a shift/reduce conflict if:
+  - Any state has a reduce item and a shift item:
+  - `X -> β.` and `Y -> ω.tδ`
+
+![LR0-shift-reduce-conflict](LR0-shift-reduce-conflict.png)
+
+SLR = "Simple LR"
+
+SLR improves on LR(0) shift/reduce heuristics so fewer states have conflicts.
+
+- Assume
+  - stack contains `α`
+  - next input is `t`
+  - DFA on input `α` terminates in state `s`
+- Reduce by `X -> β` if
+  - `s` contains item `X -> β.`
+  - `t ∈ Follow(X)`
+- Shift if
+  - `s` contains item `X -> β.tω`
+
+![SLR-solve-conflicts](SLR-solve-conflicts.png)
+
+If there are conflicts under these rules, the grammar is not SLR
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
