@@ -1004,6 +1004,48 @@ SLR improves on LR(0) shift/reduce heuristics so fewer states have conflicts.
 
 If there are conflicts under these rules, the grammar is not SLR
 
+#### LSR Parsing Example
+
+![SLR-with-state-number](SLR-with-state-number.png)
+
+```
+Follow(E) = {$, )}
+Follow(T) = {$, +, )}
+```
+
+| Configuration   | DFA Halt State            | Action              |
+| --------------- | ------------------------- | ------------------- |
+| `\|int * int$`  | 1                         | shift               |
+| `int \| * int$` | 3, `*` not in `Follow(T)` | shift               |
+| `int * \| int$` | 11                        | shift               |
+| `int * int\|$`  | 3, `$` ∈ `Follow(T)`      | red. `T -> int`     |
+| `int * T\|$`    | 4, `$` ∈ `Follow(T)`      | red. `T -> int * T` |
+| `T\|$`          | 5, `$` ∈ `Follow(E)`      | red. `E -> T`       |
+| `E\|$`          |                           | accept              |
+
+#### LSR improvement
+
+- Rerunning the viable prefixes automation on the stack at each step is wasteful
+  - Most of the work is repeated
+- Remember the state of the automation on each prefix of the stack
+- Change stack to contain pairs `<Symbol, DFA State>`
+
+```
+                        State 11 ->T State 4
+
+│               │         │               │
+├───────────────┤         ├───────────────┤
+│  int  ,   3   │         │   T   ,       │       State 1 ->T State 5       State 1 ->E State 2
+├───────────────┤         ├───────────────┤
+│   *   ,  11   │   -->   │   *   ,  11   │   -->   │               │   -->   │               │
+├───────────────┤         ├───────────────┤         ├───────────────┤         ├───────────────┤
+│  int  ,   3   │         │  int  ,   3   │         │   T   ,       │         │   E   ,       │
+├───────────────┤         ├───────────────┤         ├───────────────┤         ├───────────────┤
+│       ,   1   │         │       ,   1   │         │       ,   1   │         │       ,   1   │
+└───────────────┘         └───────────────┘         └───────────────┘         └───────────────┘
+
+```
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
