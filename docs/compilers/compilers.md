@@ -1046,6 +1046,108 @@ Follow(T) = {$, +, )}
 
 ```
 
+## Semantic Analysis
+
+- Lexical analysis detects inputs with illegal tokens
+- Parsing detects with ill-formed parse trees
+- Semantic analysis catches all remaining errors, ex:
+  - All identifiers are declared
+  - Types
+  - Inheritance relationships
+  - Classes defined only once
+  - Methods in a class defined only once
+  - Reserved identifiers are not misused
+  - ...
+
+### Symbol Table
+
+`let x: Int <- 0 in e`
+
+- Before processing `e`, add definition of `x` to current definitions, overriding any other definition of `x`
+- Recurse
+- After processing `e`, remove definition of `x` and restore old definition of `x`
+
+Symbol table:
+
+- `enter_scope()`: start a new nested scope
+- `find_symbol(x)`: finds current `x` (or null)
+- `add_symbol(x)`: add a symbol `x` to the table
+- `check_scope(x)`: true if `x` defined in the current scope
+- `exit_scope()`: exit current scope
+
+### Type Checking
+
+If Hypothesis is true, then Conclusion is true
+
+Building blocks:
+
+- Symbol `∧` is "and"
+- Symbol `=>` is "if-then"
+- `x:T` is "`x` has type `T`"
+- Symbol `⊢` is "it is provable that..."
+- `lub(X, Y)` is the "least upper bound" of `X` and `Y`
+- Symbol `O` is "type environment", it's a mapping function `Object Identifiers -> Types`
+- Symbol `M` is "method environment", `M(C, f) = (T1, ..., Tn, Tn+1)` means in class `C` there is a method `f(x1: T1, ..., xn: Tn): Tn+1`
+- Symbol `C` is "current class"
+
+If `e1` has type `Int` and `e2` has type `Int`, then `e1 + e2` has type `Int`
+
+`(e1: Int ∧ e2: Int) => e1 + e2: Int`
+
+```
+i is an integer literal
+-----------------------        [Int]
+     O,M,C ⊢ i: Int
+```
+
+```
+     O,M,C ⊢ e1: Int
+     O,M,C ⊢ e2: Int
+---------------------------    [Add]
+    O,M,C ⊢ e1 + e2: Int
+```
+
+```
+
+-----------------------        [False]
+   O,M,C ⊢ false: Bool
+```
+
+```
+ s is a string literal
+-----------------------        [String]
+   O,M,C ⊢ s: String
+```
+
+```
+O[T/x](x) = T
+O[T/x](y) = O(y), where y != x
+
+
+     O[T0/x],M,C ⊢ e1: T1
+------------------------------    [Let-No-Init]
+  O,M,C ⊢ let x: T0 in e1: T1
+```
+
+```
+     O,M,C ⊢ e0: T0
+     O[T/x],M,C ⊢ e1: T1
+     T0 <= T
+----------------------------------    [Let-Init]
+  O,M,C ⊢ let x: T <- e0 in e1: T1
+```
+
+```
+         O,M,C ⊢ e0: T0
+         O,M,C ⊢ e1: T1
+              ...
+         O,M,C ⊢ en: Tn
+M(T0, f) = T(T1', ..., Tn', Tn+1')
+    Ti <= Ti' for 1 <= i <= n
+----------------------------------    [Dispatch]
+  O,M,C ⊢ e0.f(e1, ..., en): Tn+1
+```
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
