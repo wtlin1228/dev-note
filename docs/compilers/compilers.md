@@ -1085,6 +1085,7 @@ Building blocks:
 - Symbol `=>` is "if-then"
 - `x:T` is "`x` has type `T`"
 - Symbol `⊢` is "it is provable that..."
+- `T1 <= T2` is "`T1` is subtype of `T2`"
 - `lub(X, Y)` is the "least upper bound" of `X` and `Y`
 - Symbol `O` is "type environment", it's a mapping function `Object Identifiers -> Types`
 - Symbol `M` is "method environment", `M(C, f) = (T1, ..., Tn, Tn+1)` means in class `C` there is a method `f(x1: T1, ..., xn: Tn): Tn+1`
@@ -1147,6 +1148,81 @@ M(T0, f) = T(T1', ..., Tn', Tn+1')
 ----------------------------------    [Dispatch]
   O,M,C ⊢ e0.f(e1, ..., en): Tn+1
 ```
+
+#### Self Type
+
+Self type can solve the type problem when dealing with inheritance. Consider a situation which `Stock` inherits `Count`:
+
+```cool
+class Count {
+  i: int <- 0;
+  inc(): Count {
+    {
+      i <- i + 1;
+      self;
+    }
+  }
+}
+
+class Stock inherits Count {
+  name: String;
+}
+```
+
+Then the following:
+
+```cool
+class Main {
+  Stock a <- (new Stock).inc();
+  ...a.name...
+}
+```
+
+- `(new Stock).inc()` has dynamic type `Stock`
+- So it is legitimate to write `Stock a <- (new Stock).inc()`
+- But this is not well-typed, `(new Stock).inc()` has static type `Count`
+- The type checker "loses" type information
+  - This makes inheriting `inc` useless
+  - So, we must redefine `inc` for each of the subclasses, with a specialized return type
+
+Modify the declaration of `inc` to read `inc(): SELF_TYPE {...}`
+
+- The type checker can now prove:
+  - `O,M,C ⊢ (new Count).inc(): Count`
+  - `O,M,C ⊢ (new Stock).inc(): Stock`
+
+Note that `SELF_TYPE` is not a dynamic type, it's a static type.
+
+### Error Recovery
+
+- What type is assigned to an expression with no legitimate type?
+- This type will influence the typing of the enclosing expression
+
+#### Assign type `Object` to ill-typed expressions
+
+`let y: Int <- x + 2 in y + 3`
+
+Errors:
+
+- error: x is undefined
+- error: + applied to Object
+- error: bad assignment
+
+It's a workable solution but with cascading errors
+
+#### Introduce a new type `No_type` for use with ill-typed
+
+- Defined `No_type <= C` for all types `C`
+- Every operation is defined for `No_type`
+  - With `No_type` result
+
+`let y: Int <- x + 2 in y + 3`
+
+Errors:
+
+- error: x is undefined
+
+A “real” compiler would use something like `No_type`, but the class hierarchy is not a tree anymore.
 
 # Resource
 
