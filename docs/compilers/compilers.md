@@ -1224,6 +1224,61 @@ Errors:
 
 A “real” compiler would use something like `No_type`, but the class hierarchy is not a tree anymore.
 
+## Runtime Organization
+
+The information needed to manage one procedure activation is called an activation record (AR) or frame.
+
+```
+ ┌────────────────────────┐
+ │                        │
+ │         result         │
+ │                        │
+ ├────────────────────────┤
+ │                        │
+ │        argument        │
+ │                        │
+ ├────────────────────────┤
+ │                        │
+ │      control link      │
+ │                        │
+ ├────────────────────────┤
+ │                        │
+ │     return address     │
+ │                        │
+ └────────────────────────┘
+```
+
+Memory layout looks like this:
+
+```
+ ┌────────────────────────┐
+ │                        │
+ │          code          │
+ │                        │
+ ├────────────────────────┤
+ │                        │
+ │       static data      │
+ │                        │
+ ├────────────────────────┤
+ │                        │
+ │          stack         │
+ │                        │
+ ├─ ── ── ── ── ── ── ── ─┤
+ │                        │
+ │           │            │
+ │           ▼            │
+ │                        │
+ │                        │
+ │           ▲            │
+ │           │            │
+ │                        │
+ ├─ ── ── ── ── ── ── ── ─┤
+ │                        │
+ │          heap          │
+ │                        │
+ └────────────────────────┘
+```
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
