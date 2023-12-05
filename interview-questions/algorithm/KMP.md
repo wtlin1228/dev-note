@@ -58,6 +58,10 @@ function indexOf(haystack: string, needle: string): number {
 }
 ```
 
+## Rust
+
+https://doc.rust-lang.org/std/str/pattern/trait.Pattern.html
+
 ## Problems
 
 - [796. Rotate String](https://leetcode.com/problems/rotate-string/)
