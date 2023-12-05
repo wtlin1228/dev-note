@@ -1251,17 +1251,17 @@ The information needed to manage one procedure activation is called an activatio
 Memory layout looks like this:
 
 ```
- ┌────────────────────────┐
+ ┌────────────────────────┐  Higher Address
  │                        │
- │          code          │
- │                        │
- ├────────────────────────┤
- │                        │
- │       static data      │
+ │          Code          │
  │                        │
  ├────────────────────────┤
  │                        │
- │          stack         │
+ │       Static Data      │
+ │                        │
+ ├────────────────────────┤
+ │                        │
+ │          Stack         │
  │                        │
  ├─ ── ── ── ── ── ── ── ─┤
  │                        │
@@ -1274,9 +1274,84 @@ Memory layout looks like this:
  │                        │
  ├─ ── ── ── ── ── ── ── ─┤
  │                        │
- │          heap          │
+ │          Heap          │
  │                        │
- └────────────────────────┘
+ └────────────────────────┘  Lower Address
+```
+
+## Code Generation
+
+Here we focus on generating code for a stack machine with accumulator.
+
+MIPS registers:
+
+- `$a0` for accumulator
+- `$sp` for stack pointer
+- `$t1` for temporary register
+
+MIPS instructions:
+
+- `lw reg1 offset(reg2)`
+  - load 32-bit word from address `reg2 + offset` into `reg1`
+- `add reg1 reg2 reg3`
+  - `reg1` <- `reg2` + `reg3`
+- `sub reg1 reg2 reg3`
+  - `reg1` <- `reg2` - `reg3`
+- `sw reg1 offset(reg2)`
+  - store 32-bit word in `reg1` at address `reg2 + offset`
+- `addiu reg1 reg2 imm`
+  - `reg1` <- `reg2` + `imm`
+  - "u" means overflow is not checked
+- `li reg imm`
+  - `reg` <- `imm`
+- `beq reg1 reg2 label`
+  - branch to label if `reg1 == reg2`
+- `b label`
+  - unconditional jump to label
+
+For each expression `e` we generate MIPS code that:
+
+- Computes the value of `e` in $a0
+- Preserves `$sp` and the contents of the stack
+
+We define a code generation function `cgen(e)` whose result is the code generated for `e`
+
+For constant:
+
+```
+cgen(i) = li $a0 i
+```
+
+For addition:
+
+```
+cgen(e1 + e2) =
+    cgen(e1)
+    sw $a0 0($sp)
+    addiu $sp $sp -4
+    cgen(e2)
+    sw $t1 4($sp)
+    add $a0 $t1 $a0
+    addiu $sp $sp 4
+```
+
+For condition:
+
+```
+cgen(if e1 = e2 then e3 else e4) =
+    cgen(e1)
+    sw $a0 0($sp)
+    addiu $sp $sp -4
+    cgen(e2)
+    sw $t1 4($sp)
+    addiu $sp $sp 4
+    beq $a0 t1
+        false_branch:
+            cgen(e4)
+        b_end_if
+        true_branch:
+            cgen(e3)
+        end_if
 ```
 
 # Resource
