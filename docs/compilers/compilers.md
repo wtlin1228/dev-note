@@ -1288,26 +1288,34 @@ MIPS registers:
 - `$a0` for accumulator
 - `$sp` for stack pointer
 - `$t1` for temporary register
+- `$fp` for frame pointer
+- `$ra` for return address
 
 MIPS instructions:
 
 - `lw reg1 offset(reg2)`
   - load 32-bit word from address `reg2 + offset` into `reg1`
+- `sw reg1 offset(reg2)`
+  - store 32-bit word in `reg1` at address `reg2 + offset`
+- `li reg imm`
+  - `reg` <- `imm`
+- `addiu reg1 reg2 imm`
+  - `reg1` <- `reg2` + `imm`
+  - "u" means overflow is not checked
 - `add reg1 reg2 reg3`
   - `reg1` <- `reg2` + `reg3`
 - `sub reg1 reg2 reg3`
   - `reg1` <- `reg2` - `reg3`
-- `sw reg1 offset(reg2)`
-  - store 32-bit word in `reg1` at address `reg2 + offset`
-- `addiu reg1 reg2 imm`
-  - `reg1` <- `reg2` + `imm`
-  - "u" means overflow is not checked
-- `li reg imm`
-  - `reg` <- `imm`
 - `beq reg1 reg2 label`
   - branch to label if `reg1 == reg2`
 - `b label`
   - unconditional jump to label
+- `jal label`
+  - jumps to label, save address of next instruction in `$ra`
+- `jr reg`
+  - jump to address in register `reg`
+- `move reg1 reg2`
+  - copy `reg2` to `reg1`
 
 For each expression `e` we generate MIPS code that:
 
@@ -1316,13 +1324,13 @@ For each expression `e` we generate MIPS code that:
 
 We define a code generation function `cgen(e)` whose result is the code generated for `e`
 
-For constant:
+### Code Generation for Constant
 
 ```
 cgen(i) = li $a0 i
 ```
 
-For addition:
+### Code Generation for Addition
 
 ```
 cgen(e1 + e2) =
@@ -1335,7 +1343,7 @@ cgen(e1 + e2) =
     addiu $sp $sp 4
 ```
 
-For condition:
+### Code Generation for Condition
 
 ```
 cgen(if e1 = e2 then e3 else e4) =
@@ -1352,6 +1360,93 @@ cgen(if e1 = e2 then e3 else e4) =
         true_branch:
             cgen(e3)
         end_if
+```
+
+### Code Generation for Function Calls and Function Definition
+
+For a function call `f(x, y)`, the AR is:
+
+```
+ ┌────────────────────────┐
+ │                        │
+ │           FP           │
+ │                        │
+ ├────────────────────────┤ ───┐
+ │                        │    │
+ │         old FP         │    │
+ │                        │    │
+ ├────────────────────────┤    │
+ │                        │    │
+ │           y            │    │
+ │                        │    │
+ ├────────────────────────┤    ├── AR of f
+ │                        │    │
+ │           x            │    │
+ │                        │    │
+ ├────────────────────────┤    │
+ │                        │    │
+ │     return address     │    │ <-- return address of the callee
+ │                        │ ───┘
+ └────────────────────────┘
+```
+
+Caller side:
+
+- The caller saves its value of the frame pointer
+- Then it saves the actual parameters in revers order
+- Finally the caller saves the return address in register `$ra`
+- The AR so far is `4 * n + 4` bytes long
+
+```
+cgen(f(e1,...,en)) =
+    sw $fp 0($sp)   ───┐
+    addiu $sp $sp -4   │
+    cgen(en)           │
+    sw $a0 0($sp)      │
+    addiu $sp $sp -4   ├── caller side
+    ...                │
+    cgen(e1)           │
+    sw $a0 0($sp)      │
+    addiu $sp $sp -4   │
+    jal f_entry     ───┘
+          x ── ── ── ── ── return address ($ra) will be set to here
+```
+
+Callee side:
+
+- Note: The frame pointer points to the top, not the bottom of the frame
+- The callee pops the return address, the actual arguments and the saved value of the frame pointer
+- z = `4 * n + 8` (the return address, and the old frame pointer)
+
+```
+cgen(def f(x1,...,xn) = e) =
+    f_entry:
+    move $fp $sp
+    sw $ra 0($sp)
+    addiu $sp $sp -4
+    cgen(e)
+    lw $ra 4($sp)
+    addiu $sp $sp z
+    lw $fp 0($sp)
+    jr $ra
+```
+
+What this looks like before and after the call:
+
+```
+    Before call       On entry       Before exit       After call
+    ┌────────┐       ┌────────┐       ┌────────┐       ┌────────┐
+ FP │        │    FP │        │       │        │    FP │        │
+    └────────┘       ├────────┤       ├────────┤       └────────┘
+ SP                  │ old fp │       │ old fp │    SP
+                     ├────────┤       ├────────┤
+                     │   y    │       │   y    │
+                     ├────────┤       ├────────┤
+                     │   x    │       │   x    │
+                     └────────┘       ├────────┤
+                  SP               FP │ return │
+                                      └────────┘
+                                   SP
 ```
 
 # Resource
