@@ -1567,6 +1567,97 @@ cgen(e1 + e2, nt) =
     add $a0 $t1 $a0
 ```
 
+### Object Layout
+
+- How are objects represented in memory?
+  - Objects are laid out in contiguous memory
+- How is dynamic dispatch implemented?
+  - Each attribute stored at a fixed offset in the object
+  - When a method is invoked, the object is self and the fields are the object's attributes
+
+```cool
+Class A {
+  a: Int <- 0;
+  d: Int <- 1;
+  f(): Int { a <- a + d };
+};
+
+Class B inherits A {
+  b: Int <- 2;
+  f(): Int { a };
+  g(): Int { a <- a - b };
+};
+
+Class C inherits A {
+  c: Int <- 3;
+  h(): Int { a <- a * c };
+};
+```
+
+For `A` methods to work correctly in `A`, `B`, and `C` objects, attributes `a` must be in the same "place" in each object.
+
+```
+                     Offset   Description
+┌────────────────┐
+│   Class Tag    │     0      an integer (unique identifier of the object)
+├────────────────┤
+│  Object Size   │     4      an integer (size of the object in words)
+├────────────────┤
+│  Dispatch Ptr  │     8      a pointer to a table of methods
+├────────────────┤
+│   Attribute 1  │     12
+├────────────────┤
+│   Attribute 2  │     16
+├────────────────┤
+│       ...      │
+└────────────────┘
+```
+
+Observation:
+
+- Given a layout for class `A`, a layout for subclass `B` can be defined by extending the layout of `A` with additional slots for the additional attributes of `B`
+- Leave the layout of `A` unchanged (B is an extension)
+
+| Class / Offset | 0    | 4   | 8   | 12  | 16  | 20  |
+| -------------- | ---- | --- | --- | --- | --- | --- |
+| A              | Atag | 5   | `*` | a   | d   |     |
+| B              | Btag | 6   | `*` | a   | d   | b   |
+| C              | Ctag | 6   | `*` | a   | d   | c   |
+
+Consider layout for An < ... < A3 < A2 < A1
+
+```
+┌────────────────┐
+│   Class Tag    │
+├────────────────┤
+│  Object Size   │
+├────────────────┤
+│  Dispatch Ptr  │
+├────────────────┤
+│    A1 attrs    │
+├────────────────┤
+│    A2 attrs    │
+├────────────────┤
+│    A3 attrs    │
+├────────────────┤
+│       ...      │
+└────────────────┘
+```
+
+#### Methods & Dispatch Tables
+
+- Every class has a fixed set of methods
+  - including inherited methods
+- A dispatch table indexes these methods
+  - An array of method entry points
+  - A method `f` lives at a fixed offset in the dispatch table for a class and all of its subclasses
+
+| Class / Offset | 0   | 4   |
+| -------------- | --- | --- |
+| A              | fA  |     |
+| B              | fB  | g   |
+| C              | fA  | h   |
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
