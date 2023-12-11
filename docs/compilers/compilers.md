@@ -1493,9 +1493,87 @@ codegen(def sumto(x) = if x = 0 then 0 else x + sumto(x - 1)) =
         jr $ra
 ```
 
+### Temporaries
+
+Use temporaries to reduce the cost of pushing on and popping off the stack.
+
+Let `NT(e)` = # of temps needed to evaluate `e`
+
+- NT(e1 + e2) = max(NT(e1), 1 + NT(e2))
+- NT(e1 - e2) = max(NT(e1), 1 + NT(e2))
+- NT(if e1 = e2 then e3 else e4) = max(NT(e1), 1 + NT(e2), NT(e3), NT(e4))
+- NT(id(e1, ..., en)) = max(NT(e1), ..., NT(en))
+- NT(int) = 0
+- NT(id) = 0
+
+```
+def fib(x) = if x = 1 then 0 else            // 1
+                if x = 2 then 1 else         // 1
+                    fib(x - 1) + fib(x - 2)  // 2
+
+NT(def fib(x)) = max(
+  NT(x), 1 + NT(1),            // 1
+  NT(x), 1 + NT(2),            // 1
+  max(
+    max(NT(x), 1 + NT(1)),     // 1
+    1 + max(NT(x), 1 + NT(2)), // 2
+  )
+)
+```
+
+Activation Record becomes:
+
+```
+┌─────────────┐
+│   Old FP    │
+├─────────────┤
+│     xn      │
+├─────────────┤
+│     ...     │
+├─────────────┤
+│     x1      │
+├─────────────┤
+│ Return Addr │
+├─────────────┤
+│ Temp NT(e)  │
+├─────────────┤
+│     ...     │
+├─────────────┤
+│   Temp 1    │
+└─────────────┘
+```
+
+original `e1 + e2`:
+
+```
+cgen(e1 + e2) =
+    cgen(e1)
+    sw $a0 0($sp)
+    addiu $sp $sp -4
+    cgen(e2)
+    sw $t1 4($sp)
+    add $a0 $t1 $a0
+    addiu $sp $sp 4
+```
+
+with temporary:
+
+```
+cgen(e1 + e2, nt) =
+    cgen(e1, nt)
+    sw $a0 nt($fp)
+    cgen(e2, nt + 4)
+    lw $t1 nt($fp)
+    add $a0 $t1 $a0
+```
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
 - https://web.stanford.edu/class/cs143/
 - [StanfordOnline SOE.YCSCS1 on EDX](https://learning.edx.org/course/course-v1:StanfordOnline+SOE.YCSCS1+3T2020/home)
 - [Engineering a Compiler 3rd Edition](https://www.amazon.com/-/zh_TW/Keith-D-Cooper/dp/0128154128/ref=sr_1_11)
+
+```
+
+```
