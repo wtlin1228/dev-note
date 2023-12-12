@@ -1658,6 +1658,56 @@ Consider layout for An < ... < A3 < A2 < A1
 | B              | fB  | g   |
 | C              | fA  | h   |
 
+## Operational Semantics
+
+Notation: `Context ⊢ e : v`
+
+In the given `context`, expression e evaluates to value `v`
+
+```
+    Context ⊢ e1 : 5
+    Context ⊢ e2 : 7
+--------------------------
+  Context ⊢ e1 + e2 : 12
+```
+
+We track variables and their values with:
+
+- An environment: `E = [a : l1, b : l2]`
+  - Keeps track of which variables are in scope
+  - Tells us where those variables are
+- A store: `S = [l1 -> 5, l2 -> 7]`
+  - Maps memory locations to values
+  - `S' = S[12/l1]` defines a store `S'` such that `S'(l1) = 12` and `S'(l) = S(l)` if `l != l1`
+
+### Cool values are objects
+
+All objects are instances of some class
+
+- `X(a1 = l1, ..., an = ln)` is a Cool object where
+  - `X` is the class of object
+  - `ai` are the attributes (including the inherited ones)
+  - `li` is the location where the value of `ai` is stored
+- Special cases (classes without attributes)
+  - `Int(5)` the integer 5
+  - `Bool(true)` the boolean true
+  - `String(4, "Cool")` the string "Cool" of length 4
+- There is a special value `void` of type `Object`
+  - No operations can be performed on it
+  - Except for the test `isvoid`
+  - Concrete implementations might use NULL here
+
+### The evaluation judgment
+
+`so, E, S ⊢ e : v, S'`
+
+- Given `so` the current value of `self`
+- And `E` the current variable environment
+- And `S` the current store
+- If the evaluation of `e` terminates then
+  - The value of `e` is `v`
+  - And the new store is `S'`
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
