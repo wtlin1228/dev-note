@@ -1707,6 +1707,25 @@ All objects are instances of some class
 - If the evaluation of `e` terminates then
   - The value of `e` is `v`
   - And the new store is `S'`
+- `lnew = newloc(S)` means that `lnew` is a location not already used in `S`
+
+### Informal semantics of `new T`
+
+- Allocate locations to hold all attributes of an object of class `T`
+  - Essentially, allocate a new object
+- Set attributes with their default values
+- Evaluate the initializers and set the resulting attributes values
+- Return the newly allocated object
+
+#### Informal semantics of `e0.f(e1, ..., en)`
+
+- Evaluate the arguments in order `e1, ..., en`
+- Evaluate `e0` to the target object
+- Let `X` be the dynamic type of the target object
+- Fetch from `X` the definition of `f` (with `n` args)
+- Create `n` new locations and an environment that maps `f`'s formal arguments to those locations
+- Initialize the locations with the actual arguments
+- Set `self` to the target object and evaluate `f`'s body
 
 # Resource
 
@@ -1714,7 +1733,3 @@ All objects are instances of some class
 - https://web.stanford.edu/class/cs143/
 - [StanfordOnline SOE.YCSCS1 on EDX](https://learning.edx.org/course/course-v1:StanfordOnline+SOE.YCSCS1+3T2020/home)
 - [Engineering a Compiler 3rd Edition](https://www.amazon.com/-/zh_TW/Keith-D-Cooper/dp/0128154128/ref=sr_1_11)
-
-```
-
-```
