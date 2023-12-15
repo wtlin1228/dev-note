@@ -1757,6 +1757,34 @@ Most compilers do (1), many do (2), few do (3)
 
 ### Local Optimization
 
+- Some statements can be deleted
+  - `x := x + 0`
+  - `x := x * 1`
+- Some statements can be simplified
+  - `x := x * 0` => `x := 0`
+  - `y := y ** 2` => `y := y * y`
+  - `x := x * 8` => `x := x << 3`
+  - `x := x * 15` => `t := x << 4; x := t - x`
+- Operations on constants can be computed at compile time
+  - `x := 2 + 2` => `x := 4`
+  - `if 2 < 0 jump L` can be deleted
+- Eliminate unreachable basic blocks
+  - `if (DEBUG) then ...`
+  - libraries
+
+Each local optimization does little by itself. Performance one optimization enables another.
+
+Optimizing compilers repeat optimizations until no
+improvement is possible (The optimizer can also be stopped at any point to limit
+compilation time)
+
+Optimizations can be directly applied to assembly
+code. **Peephole optimization** is effective for improving
+assembly code
+
+- `move $a $b, move $b $a` => `move $a $b`
+- `addiu $a $a i, addiu $a $a j` => `addiu $a $a i+j`
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
