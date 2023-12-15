@@ -1727,6 +1727,36 @@ All objects are instances of some class
 - Initialize the locations with the actual arguments
 - Set `self` to the target object and evaluate `f`'s body
 
+## Optimization
+
+Most complexity in modern compilers is in the optimizer, and also by far the largest phase.
+
+When should we perform optimizations?
+
+- On AST
+  - Pro: Machine independent
+  - Con: Too high level
+- On assembly language
+  - Pro: Exposes optimization opportunities
+  - Con: Machine dependent
+  - Con: Must reimplement optimizations when retargetting
+- On an [intermediate language](https://en.wikipedia.org/wiki/Intermediate_representation)
+  - Pro: Machine independent
+  - Pro: Exposes optimization opportunities
+
+For languages like C and Cool there are three granularities of optimizations:
+
+1. Local optimizations
+   - Apply to a [basic block](https://en.wikipedia.org/wiki/Basic_block) in isolation
+2. Global optimizations
+   - Apply to a [control-flow graph](https://en.wikipedia.org/wiki/Control-flow_graph) (method body) in isolation
+3. Inter-procedural optimizations
+   - Apply across method boundaries
+
+Most compilers do (1), many do (2), few do (3)
+
+### Local Optimization
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
