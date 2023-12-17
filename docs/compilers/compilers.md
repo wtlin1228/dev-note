@@ -1848,7 +1848,7 @@ Ordering:
 
 Rule 1-4 can be written using least-upper bound:
 
-$$ C(s,x,in) = lub { C(p,x,out) | p is a predecessor of s } $$
+`C(s,x,in) = lub { C(p,x,out) | p is a predecessor of s }`
 
 The constant propagation algorithm is linear in program size
 
