@@ -1837,7 +1837,7 @@ Algorithm:
    - Because of cycles, all points must have values at all times
    - Intuitively, assigning some initial value allows the analysis to break cycles
    - The initial value `⊥` means "So far as we know, control never reaches this point"
-3. Repeat until all points satisfy rule 1-8:
+3. Repeat until all points satisfy rules 1-8:
    - Pick `s` not satisfying rule 1-8 and update using the appropriate rule
 
 ![constant propagation](./constant-propagation.png)
@@ -1846,7 +1846,7 @@ Ordering:
 
 ![constant propagation ordering](./constant-propagation-ordering.png)
 
-Rule 1-4 can be written using least-upper bound:
+Rules 1-4 can be written using least-upper bound:
 
 `C(s,x,in) = lub { C(p,x,out) | p is a predecessor of s }`
 
@@ -1857,6 +1857,57 @@ The constant propagation algorithm is linear in program size
 - Number of steps
   - = Number of C(...) values computed times 2
   - = Number of program statements times 4
+
+#### Liveness Analysis
+
+Once constants have been globally propagated, we would like to eliminate dead code
+
+A variable `x` is live at statement `s` if
+
+- There exists a statement `s'` that uses `x`
+- There is a path from s to `s'`
+- That path has no intervening assignment to `x`
+
+A statement `x := ...` is dead code if `x` is dead after the assignment
+
+| value | interpretation       |
+| ----- | -------------------- |
+| true  | the variable is live |
+| false | the variable is dead |
+
+Notations:
+
+- `C(s,x,in)` = value of `x` before `s`
+- `C(s,x,out)` = value of `x` after `s`
+
+Rules:
+
+1. `L(p,x,out) = ∨{ L(s,x,in) | s a successor of p }`
+2. `L(s:=f(x),x,in) = true` if `s` refers to `x` on the right hand side
+3. `L(x:=e,x,in) = false` if `e` does not refer to `x`
+4. `L(s,x,in) = L(s,x,out)` if `s` does not refer to `x`
+
+Algorithm:
+
+1. Let all `L(...) = false` initially
+2. Repeat until all statements `s` satisfy rules 1-4
+   - Pick `s` where one of 1-4 does not hold and update using the appropriate rule
+
+Ordering:
+
+- A value can change from `false` to `true`, but not the other way around
+- Each value can change only once, so termination is guaranteed
+- Once the analysis is computed, it is simple to eliminate dead code
+
+#### Summarize Global Optimization
+
+Constant propagation is a **forwards analysis**: information is pushed from inputs to outputs
+
+Liveness is a **backwards analysis**: information is pushed from outputs back towards inputs
+
+- There are many other global flow analyses
+- Most can be classified as either forward or backward
+- Most also follow the methodology of local rules relating information between adjacent program points
 
 # Resource
 
