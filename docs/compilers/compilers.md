@@ -1785,6 +1785,79 @@ assembly code
 - `move $a $b, move $b $a` => `move $a $b`
 - `addiu $a $a i, addiu $a $a j` => `addiu $a $a i+j`
 
+### Global Optimization
+
+Global optimization tasks share several traits:
+
+- The optimization depends on knowing a property X at a particular point in program execution
+- Proving X at any point requires knowledge of the entire program
+- It is OK to be conservative. If the optimization requires X to be true, then want to know either
+  - X is definitely true
+  - Don't know if X is true
+  - It is always safe to say "don't know"
+
+#### Constant Propagation
+
+To replace a use of x by a constant k we must know: On every path to the use of x, the last assignment to x is
+
+$$ x := k $$
+
+To make the problem precise, we associate one of the
+following values with X at every program point
+
+| value      | interpretation                |
+| ---------- | ----------------------------- |
+| ⊥ (bottom) | This statement never executes |
+| C          | X = constant c                |
+| T (top)    | X is not a constant           |
+
+Notations:
+
+- `C(s,x,in)` = value of `x` before `s`
+- `C(s,x,out)` = value of `x` after `s`
+
+Rules:
+
+- let `s` = current statement
+- let `pi` = immediate predecessor statement `p1,...,pn`
+
+1. `C(s,x,in) = T` if `C(pi,x,out) = T` for any `i`
+2. `C(s,x,in) = T` if `C(pi,x,out) = c & C(pj,x,out) = d & d != c`
+3. `C(s,x,in) = c` if `C(pi,x,out) = c` for all `i`
+4. `C(s,x,in) = ⊥` if `C(pi,x,out) = ⊥` for all `i`
+5. `C(s,x,out) = ⊥` if `C(s,x,in) = ⊥`
+6. `C(x:=c,x,out) = c` if `c` is a constant & `C(x:=c,x,in) != ⊥`
+7. `C(x:=f(...),x,out) = T` if `C(x:=f(...),x,in) != ⊥`
+8. `C(y:=...,x,out) = C(y:=...,x,in)` if `x != y`
+
+Algorithm:
+
+1. For every entry `s` to the program, set `C(s,x,in) = T`
+2. Set `C(s,x,in) = C(s,x,out) = ⊥` everywhere else
+   - Because of cycles, all points must have values at all times
+   - Intuitively, assigning some initial value allows the analysis to break cycles
+   - The initial value `⊥` means "So far as we know, control never reaches this point"
+3. Repeat until all points satisfy rule 1-8:
+   - Pick `s` not satisfying rule 1-8 and update using the appropriate rule
+
+![constant propagation](./constant-propagation.png)
+
+Ordering:
+
+![constant propagation ordering](./constant-propagation-ordering.png)
+
+Rule 1-4 can be written using least-upper bound:
+
+$$ C(s,x,in) = lub { C(p,x,out) | p is a predecessor of s } $$
+
+The constant propagation algorithm is linear in program size
+
+- Values start as `⊥` and only increase
+- `⊥` can change to a constant, and a constant to `T`
+- Number of steps
+  - = Number of C(...) values computed times 2
+  - = Number of program statements times 4
+
 # Resource
 
 - http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=Compilers&doc=docs/pa.html
