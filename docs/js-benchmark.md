@@ -1,5 +1,7 @@
 # Avoid micro benchmark
 
+Micro benchmark is so easy to make you shoot yourself in the foot and start measuring the wrong things.
+
 ## Make sure you are running in the same mode
 
 Make your benchmark runs long enough. Because when the VM starts running, it runs in interpret mode, and later it switches to compile mode.
@@ -11,3 +13,5 @@ In order to make a function call, the VM needs to store the arguments (in memory
 # Reference
 
 - [Microsoft Dev Blog - Introducing Deopt Explorer](https://devblogs.microsoft.com/typescript/introducing-deopt-explorer/)
+- [Miško Hevery - JavaScript under the hood](https://github.com/mhevery/JavaScriptVM_under_the_hood)
+- [mraleph](https://mrale.ph/blog/)
