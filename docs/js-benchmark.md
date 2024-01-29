@@ -10,6 +10,10 @@ Make your benchmark runs long enough. Because when the VM starts running, it run
 
 In order to make a function call, the VM needs to store the arguments (in memory or registers), save the current frame pointer and return address. So, be aware of that when the compiler inlines one your functions but not others, the benchmark will be inaccurate, if the cost of the function itself is very cheap.
 
+## Be careful about the `Inline Cache` and `Secondary Cache`
+
+Make sure creating sufficient amount of shape, our benchmark will be misleadingly fast if most of the shapes are cached in he two layers of cache. The real world applications are complex, so the contention for the cache is much higher.
+
 # Reference
 
 - [Microsoft Dev Blog - Introducing Deopt Explorer](https://devblogs.microsoft.com/typescript/introducing-deopt-explorer/)
